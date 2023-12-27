@@ -43,15 +43,15 @@ public class Battle : MonoBehaviour{
             EHP[i] = Char.CharDatabase[Over.Enemy[i].name].HP;
             PartyHP[i].fillAmount = PHP[i]/Char.CharDatabase[Over.Party[i].name].HP;
             EnemyHP[i].fillAmount = EHP[i]/Char.CharDatabase[Over.Enemy[i].name].HP;
-            SkillTxt[i].text = Over.Party[Position[0]].name;}
+            SkillTxt[i].text = Over.Party[i].name;}
         Arrow.gameObject.SetActive(true);}
     public void BattleUp(){
         if(BattleState == 0){
             for(int i = 0; i < 3; i++){SkillTxt[i].text = Char.CharDatabase[Over.Party[Position[0]].name].Skill[i];}}
         if(BattleState == 1){
-            for(int i = 0; i < 3; i++){SkillTxt[i].text = Over.Enemy[Position[0]].name;}}
+            for(int i = 0; i < 3; i++){SkillTxt[i].text = Over.Enemy[i].name;}}
         if(BattleState == 2){
-            for(int i = 0; i < 3; i++){SkillTxt[i].text = Over.Party[Position[0]].name;}}
+            for(int i = 0; i < 3; i++){SkillTxt[i].text = Over.Party[i].name;}}
         if(BattleState < 2){BattleState++;}
         else{
             AttackCount++;

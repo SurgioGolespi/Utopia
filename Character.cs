@@ -7,6 +7,7 @@ public class Character : MonoBehaviour{
         public int EXP;
         public int ATK;
         public string[] Skill;
+        public string[] Role;
         public int[] Modifier;}
         public Dictionary<string, Stats> CharDatabase = new Dictionary<string, Stats>
         {{"Party1", new Stats{
@@ -15,6 +16,7 @@ public class Character : MonoBehaviour{
                 LVL = 1,
                 ATK = 10,
                 Skill = new string[] {"Utopia's Will", "Utopia's Wrath", "Utopia's Wager"}, 
+                Role = new string[]{"Attack", "Heal", "Stack"},
                 Modifier = new int[] {5, 4, 3}}},
         {"Party2", new Stats{
                 HP = 100,
@@ -22,6 +24,7 @@ public class Character : MonoBehaviour{
                 LVL = 1,
                 ATK = 10,
                 Skill = new string[] {"Overclock", "Overtime", "Overload"}, 
+                Role = new string[]{"Attack", "Heal", "Stack"},
                 Modifier = new int[] {5, 4, 3}}},
         {"Party3", new Stats{
                 HP = 100,
@@ -29,6 +32,7 @@ public class Character : MonoBehaviour{
                 LVL = 1,
                 ATK = 10,
                 Skill = new string[] {"Data Breach", "Data Crash", "Data Drive"}, 
+                Role = new string[]{"Attack", "Heal", "Stack"},
                 Modifier = new int[] {5, 4, 3}}},
         {"Enemy1", new Stats{
                 HP = 100,
@@ -45,4 +49,8 @@ public class Character : MonoBehaviour{
         public int DamageMod(string Name, int Position){
                 return CharDatabase[Name].Modifier[Position] * CharDatabase[Name].ATK;}
         public void LevelUp(string Name, int Amount){
-                CharDatabase[Name].EXP += Amount;}}
+                CharDatabase[Name].EXP += Amount;
+                if(CharDatabase[Name].EXP >= CharDatabase[Name].LVL * 100){
+                        CharDatabase[Name].LVL++;
+                        CharDatabase[Name].HP += 100;
+                        CharDatabase[Name].ATK += 10;}}}

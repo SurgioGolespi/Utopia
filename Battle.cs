@@ -6,6 +6,7 @@ public class Battle : MonoBehaviour{
     public Overworld Over;
     public Image[] PartyHP;
     public  Character Char;
+    public Menu Mnu;
     public Transform[] PartyHPBar;
     public Image[] EnemyHP;
     public Transform[] EnemyHPBar;
@@ -30,6 +31,7 @@ public class Battle : MonoBehaviour{
     void Update(){
         if(Over.Enemy[0] != null){ArrowMove(BattleState);}}
     public void BattleStart(){
+        Mnu.MenuOff();
         AttackCount = 0; 
         BattleState = 0; 
         TurnCount = 0;
@@ -81,11 +83,13 @@ public class Battle : MonoBehaviour{
         BattleState = 0;
         TurnCount++;}
     public void BattleEnd(){
+        Mnu.MenuOn();
         Activate(PartyHPBar, false);
         Activate(EnemyHPBar, false);
         Activate(Skill, false);
         Arrow.gameObject.SetActive(false);
         for(int i = 0; i < 3; i++){
+            Char.LevelUp(Over.Party[i].name, 100);
             Destroy(Over.Enemy[i].gameObject);
             EDamageTxt[i].text = "";
             PDamageTxt[i].text = "";}}

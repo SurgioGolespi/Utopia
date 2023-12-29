@@ -25,7 +25,10 @@ public class Menu : MonoBehaviour{
         PartyButtonTxt.gameObject.SetActive(false);
         PartyTxt.text = "HP: " + Char.CharDatabase[Over.Party[0].name].HP + "\n" + 
                         "Level: " + Char.CharDatabase[Over.Party[0].name].LVL + "\n" +
+                        "Exp Needed: " + (Char.CharDatabase[Over.Party[0].name].XPN - Char.CharDatabase[Over.Party[0].name].EXP) + "\n" +
                         "HP: " + Char.CharDatabase[Over.Party[1].name].HP + "\n" + 
                         "Level: " + Char.CharDatabase[Over.Party[1].name].LVL + "\n" +
+                        "Exp Needed: " + (Char.CharDatabase[Over.Party[1].name].XPN - Char.CharDatabase[Over.Party[0].name].EXP) + "\n" +
                         "HP: " + Char.CharDatabase[Over.Party[2].name].HP + "\n" + 
-                        "Level: " + Char.CharDatabase[Over.Party[2].name].LVL + "\n";}}
+                        "Level: " + Char.CharDatabase[Over.Party[2].name].LVL + "\n" +
+                        "Exp Needed: " + (Char.CharDatabase[Over.Party[2].name].XPN - Char.CharDatabase[Over.Party[0].name].EXP) + "\n";}}

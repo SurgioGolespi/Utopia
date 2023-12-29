@@ -6,6 +6,7 @@ public class Character : MonoBehaviour{
         public int LVL;
         public int EXP;
         public int ATK;
+        public int XPN;
         public string[] Skill;
         public string[] Role;
         public int[] Modifier;}
@@ -15,7 +16,8 @@ public class Character : MonoBehaviour{
                 EXP = 0,
                 LVL = 1,
                 ATK = 10,
-                Skill = new string[] {"Utopia's Will", "Utopia's Wrath", "Utopia's Wager"}, 
+                XPN = 100,
+                Skill = new string[] {"Utopic Will", "Utopic Wrath", "Utopic Wager"}, 
                 Role = new string[]{"Attack", "Heal", "Stack"},
                 Modifier = new int[] {5, 4, 3}}},
         {"Party2", new Stats{
@@ -23,6 +25,7 @@ public class Character : MonoBehaviour{
                 EXP = 0,
                 LVL = 1,
                 ATK = 10,
+                XPN = 100,
                 Skill = new string[] {"Overclock", "Overtime", "Overload"}, 
                 Role = new string[]{"Attack", "Heal", "Stack"},
                 Modifier = new int[] {5, 4, 3}}},
@@ -31,6 +34,7 @@ public class Character : MonoBehaviour{
                 EXP = 0,
                 LVL = 1,
                 ATK = 10,
+                XPN = 100,
                 Skill = new string[] {"Data Breach", "Data Crash", "Data Drive"}, 
                 Role = new string[]{"Attack", "Heal", "Stack"},
                 Modifier = new int[] {5, 4, 3}}},
@@ -50,7 +54,9 @@ public class Character : MonoBehaviour{
                 return CharDatabase[Name].Modifier[Position] * CharDatabase[Name].ATK;}
         public void LevelUp(string Name, int Amount){
                 CharDatabase[Name].EXP += Amount;
-                if(CharDatabase[Name].EXP >= CharDatabase[Name].LVL * 100){
+                if(CharDatabase[Name].EXP >= CharDatabase[Name].XPN){
                         CharDatabase[Name].LVL++;
+                        CharDatabase[Name].XPN += CharDatabase[Name].LVL * 100;
+                        CharDatabase[Name].EXP = 0;
                         CharDatabase[Name].HP += 100;
                         CharDatabase[Name].ATK += 10;}}}

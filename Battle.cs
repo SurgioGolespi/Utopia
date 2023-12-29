@@ -16,13 +16,13 @@ public class Battle : MonoBehaviour{
     public TextMeshProUGUI[] PDamageTxt;
     public TextMeshProUGUI[] EDamageTxt;
     public CanvasScaler CanScale;
-    private int BattleState;
-    private int AttackCount;
-    private int TurnCount;
-    private int Index;
-    private int[] PHP = new int[3];
-    private int[] EHP = new int[3];
-    private int[] Position = new int[3];
+    public int BattleState;
+    public int AttackCount;
+    public int TurnCount;
+    public int Index;
+    public int[] PHP = new int[3];
+    public int[] EHP = new int[3];
+    public int[] Position = new int[3];
     void Start(){
         Activate(PartyHPBar, false);
         Activate(EnemyHPBar, false);

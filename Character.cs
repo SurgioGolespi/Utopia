@@ -52,11 +52,13 @@ public class Character : MonoBehaviour{
                 Modifier = new int[] {1, 1, 1}}}};
         public int DamageMod(string Name, int Position){
                 return CharDatabase[Name].Modifier[Position] * CharDatabase[Name].ATK;}
-        public void LevelUp(string Name, int Amount){
+        public bool LevelUp(string Name, int Amount){
                 CharDatabase[Name].EXP += Amount;
                 if(CharDatabase[Name].EXP >= CharDatabase[Name].XPN){
                         CharDatabase[Name].LVL++;
                         CharDatabase[Name].XPN += CharDatabase[Name].LVL * 100;
                         CharDatabase[Name].EXP = 0;
                         CharDatabase[Name].HP += 100;
-                        CharDatabase[Name].ATK += 10;}}}
+                        CharDatabase[Name].ATK += 10;
+                        return true;}
+                else{return false;}}}

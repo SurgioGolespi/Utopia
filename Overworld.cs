@@ -7,6 +7,8 @@ public class Overworld : MonoBehaviour{
     public Transform[] Foreground;
     public Transform[] EnemyFab;
     public Transform[] PartyFab;
+    public Transform[] BuildingFab;
+    public Transform[] Building;
     public Sprite[] FGSprites;
     public SpriteRenderer[] FGSpriteRenderer;
     public Transform Camera;
@@ -14,7 +16,10 @@ public class Overworld : MonoBehaviour{
     public int Steps;
     public int CurFG;
     public bool MenuOn;
+    public bool BuildOn;
+    public AudioSource Soundtrack;
     void Start(){
+        Soundtrack.Play();
         for(int i = 0; i < 3; i++){
                 Party[i] = Instantiate(PartyFab[Mnu.CurrentParty[i]], new Vector3(0 - 2 * i, 0, 0), Quaternion.identity);
                 Party[i].name = PartyFab[Mnu.CurrentParty[i]].name;}}
@@ -37,9 +42,13 @@ public class Overworld : MonoBehaviour{
                 Enemy[i] = Instantiate(EnemyFab[i], new Vector3(Party[0].position.x + 8 + 2 * i, 0, 0), Quaternion.identity);
                 Enemy[i].name = EnemyFab[i].name;}
             Btl.BattleStart();}
-        if(Mathf.Abs(Party[0].position.x) > 500){
+        if(Party[0].position.x > 500 || Party[0].position.x < 0){
             CurFG = (Party[0].position.x > 0) ? (CurFG + 1) % 3 : (CurFG + 2) % 3;
-            Party[0].position = new Vector3(0, 0, 0);
+            Party[0].position = (Party[0].position.x > 0) ? new Vector3(0, 0, 0) : new Vector3(500, 0, 0);
             for(int i = 0; i < 3; i++){
-                Foreground[i].position = new Vector3(-15 + 19 * i, 1, 0);}
-            for(int i = 0; i < 3; i++){FGSpriteRenderer[i].sprite = FGSprites[CurFG];}}}}
+                Foreground[i].position = new Vector3(Party[0].position.x - 15 + 19 * i, 1, 0);
+                FGSpriteRenderer[i].sprite = FGSprites[CurFG];}}
+        if(CurFG == 1 && Party[0].position.x == 0 && !BuildOn){
+            BuildOn = true;
+            Building[0] = Instantiate(BuildingFab[0], new Vector3(Party[0].position.x + 50, 1, 0), Quaternion.identity);
+            Building[0].name = BuildingFab[0].name;}}}

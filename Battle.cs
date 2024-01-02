@@ -23,6 +23,7 @@ public class Battle : MonoBehaviour{
     public int[] PHP = new int[3];
     public int[] EHP = new int[3];
     public int[] Position = new int[3];
+    public bool[] Used = new bool[3];
     void Start(){
         Activate(PartyHPBar, false);
         Activate(EnemyHPBar, false);
@@ -40,6 +41,7 @@ public class Battle : MonoBehaviour{
         Activate(PartyHPBar, true);
         Activate(EnemyHPBar, true);
         for(int i = 0; i < 3; i++){
+            Used[i] = false;
             Position[i] = 0;
             PHP[i] = Char.CharDatabase[Over.Party[i].name].HP;
             EHP[i] = Char.CharDatabase[Over.Enemy[i].name].HP;
@@ -49,7 +51,8 @@ public class Battle : MonoBehaviour{
         Arrow.gameObject.SetActive(true);}
     public void BattleUp(){
         if(BattleState == 0){
-            for(int i = 0; i < 3; i++){SkillTxt[i].text = Char.CharDatabase[Over.Party[Position[0]].name].Skill[i];}}
+            for(int i = 0; i < 3; i++){SkillTxt[i].text = Char.CharDatabase[Over.Party[Position[0]].name].Skill[i];}
+            Used[Index] = true;}
         if(BattleState == 1){
             for(int i = 0; i < 3; i++){SkillTxt[i].text = Over.Enemy[i].name;}}
         if(BattleState == 2){
@@ -64,21 +67,22 @@ public class Battle : MonoBehaviour{
         Index = Position[BattleState];}
     public void ArrowMove(int State){
         if(Input.GetKeyDown(KeyCode.D)){Index = (Index + 1) % 3;}
-        if(Input.GetKeyDown(KeyCode.A)){Index = (Index - 1 + 3) % 3;}
+        if(Input.GetKeyDown(KeyCode.A)){Index = (Index + 2) % 3;}
         Arrow.position = new Vector3(Skill[Index].position.x + Mathf.RoundToInt(125 * Screen.width/CanScale.referenceResolution.x), Arrow.position.y, 0);
-        if(Input.GetKeyDown(KeyCode.Space) && (BattleState != 2 || EHP[Index] > 0)){
+        if(Input.GetKeyDown(KeyCode.Space) && (BattleState != 2 || EHP[Index] > 0) && (BattleState != 0 || Used[Index] != true)){
             Position[BattleState] = Index;
             BattleUp();}}
     public void PlayerAttack(){
         EHP[Position[2]] -= Char.DamageMod(Over.Party[Position[0]].name, Position[1]);
-        EDamageTxt[Position[2]].text = Char.DamageMod(Over.Party[Position[0]].name, Position[1]).ToString();
+        StartCoroutine(DamageFade(EDamageTxt[Position[2]], Char.DamageMod(Over.Party[Position[0]].name, Position[1]).ToString()));
         EnemyHP[Position[2]].fillAmount = (float)EHP[Position[2]]/Char.CharDatabase[Over.Enemy[Position[2]].name].HP;}
     public void EnemyAttack(){
         for(int i = 0; i < 3; i++){
+            Used[i] = false;
             if(EHP[i] > 0){
-                int Target = Random.Range(0,2);
+                int Target = Random.Range(0,3);
                 PHP[Target] -= Char.DamageMod(Over.Enemy[i].name, TurnCount % 3);
-                PDamageTxt[Target].text = Char.DamageMod(Over.Enemy[i].name, TurnCount % 3).ToString();
+                StartCoroutine(DamageFade(PDamageTxt[Target], Char.DamageMod(Over.Enemy[i].name, TurnCount % 3).ToString()));
                 PartyHP[Target].fillAmount = (float)PHP[Target]/Char.CharDatabase[Over.Party[Target].name].HP;}}
         BattleState = 0;
         TurnCount++;}
@@ -89,9 +93,11 @@ public class Battle : MonoBehaviour{
         Activate(Skill, false);
         Arrow.gameObject.SetActive(false);
         for(int i = 0; i < 3; i++){
-            Char.LevelUp(Over.Party[i].name, 100);
-            Destroy(Over.Enemy[i].gameObject);
-            EDamageTxt[i].text = "";
-            PDamageTxt[i].text = "";}}
+            if(Char.LevelUp(Over.Party[i].name, 100)){StartCoroutine(DamageFade(PDamageTxt[i], "Level Up"));};
+            Destroy(Over.Enemy[i].gameObject);}}
     private void Activate(Transform[] Object, bool State){
-        foreach(Transform Obj in Object){Obj.gameObject.SetActive(State);}}} 
+        foreach(Transform Obj in Object){Obj.gameObject.SetActive(State);}}
+    IEnumerator DamageFade(TextMeshProUGUI Text, string Txt){
+        Text.text = Txt;
+        yield return new WaitForSeconds(1f);
+        Text.text = "";}} 

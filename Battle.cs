@@ -17,7 +17,6 @@ public class Battle : MonoBehaviour{
     public int BattleState;
     public int AttackCount;
     public int TurnCount;
-    public int Index;
     public int[] PHP = new int[3];
     public int[] EHP = new int[3];
     public int[] Position = new int[3];
@@ -27,11 +26,10 @@ public class Battle : MonoBehaviour{
         Activate(EnemyHPBar, false);
         Activate(Skill, false);}
     public void BattleStart(){
-        Mnu.MenuOff();
+        Mnu.MenuButton.gameObject.SetActive(false);
         AttackCount = 0; 
         BattleState = 0; 
         TurnCount = 0;
-        Index = 0;
         Activate(Skill, true);
         Activate(PartyHPBar, true);
         Activate(EnemyHPBar, true);
@@ -45,20 +43,23 @@ public class Battle : MonoBehaviour{
             SkillTxt[i].text = Over.Party[i].name;}}
     public void BattleUp(){
         if(BattleState == 0){
-            for(int i = 0; i < 3; i++){SkillTxt[i].text = Char.CharDatabase[Over.Party[Position[0]].name].Skill[i];}
-            Used[Position[0]] = true;}
+            for(int i = 0; i < 3; i++){
+                SkillTxt[i].text = Char.CharDatabase[Over.Party[Position[0]].name].Skill[i];}
+                Used[Position[0]] = true;}
         if(BattleState == 1){
             for(int i = 0; i < 3; i++){SkillTxt[i].text = Over.Enemy[i].name;}}
         if(BattleState == 2){
             for(int i = 0; i < 3; i++){SkillTxt[i].text = Over.Party[i].name;}}
-        if(BattleState < 2){BattleState++;}
+        if(BattleState < 2){
+            BattleState++;}
         else{
             AttackCount++;
             PlayerAttack();
-            if(EHP[0] <= 0 && EHP[1] <= 0 && EHP[2] <= 0){BattleEnd();}
-            else if(AttackCount % 3 == 0){EnemyAttack();}
-            else{BattleState = 0;}}
-        Index = Position[BattleState];}
+            if(EHP[0] <= 0 && EHP[1] <= 0 && EHP[2] <= 0){
+                BattleEnd();}
+            else if(AttackCount % 3 == 0){
+                EnemyAttack();}
+            else{BattleState = 0;}}}
     public void SKill0(){
         if((BattleState != 2 || EHP[0] > 0) && (BattleState != 0 || Used[0] != true) && (Over.Enemy[0] != null)){
             Position[BattleState] = 0;
@@ -86,7 +87,7 @@ public class Battle : MonoBehaviour{
         BattleState = 0;
         TurnCount++;}
     public void BattleEnd(){
-        Mnu.MenuOn();
+        Mnu.MenuButton.gameObject.SetActive(true);
         Activate(PartyHPBar, false);
         Activate(EnemyHPBar, false);
         Activate(Skill, false);
@@ -94,7 +95,8 @@ public class Battle : MonoBehaviour{
             if(Char.LevelUp(Over.Party[i].name, 100)){StartCoroutine(DamageFade(PDamageTxt[i], "Level Up"));};
             Destroy(Over.Enemy[i].gameObject);}}
     private void Activate(Transform[] Object, bool State){
-        foreach(Transform Obj in Object){Obj.gameObject.SetActive(State);}}
+        foreach(Transform Obj in Object){
+            Obj.gameObject.SetActive(State);}}
     IEnumerator DamageFade(TextMeshProUGUI Text, string Txt){
         Text.text = Txt;
         yield return new WaitForSeconds(1f);

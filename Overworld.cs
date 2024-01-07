@@ -19,23 +19,27 @@ public class Overworld : MonoBehaviour{
     public bool BuildOn;
     public AudioSource Soundtrack;
     public float HorizontalValue;
+    public float VerticalValue;
     void Start(){
         Soundtrack.Play();
         for(int i = 0; i < 3; i++){
-                Party[i] = Instantiate(PartyFab[Mnu.CurrentParty[i]], new Vector3(0 - 2 * i, 0, 0), Quaternion.identity);
+                Party[i] = Instantiate(PartyFab[Mnu.CurrentParty[i]], Position + new Vector3(- 2 * i, 0, 0), Quaternion.identity);
                 Party[i].name = PartyFab[Mnu.CurrentParty[i]].name;}}
     void Update(){
         if(Enemy[0] == null && MenuOn == false){
             if (Input.touchCount > 0){
-            Touch touch = Input.GetTouch(0);
-            if (touch.phase == TouchPhase.Moved){
-                float HorizontalMovement = touch.deltaPosition.x;
-                if (HorizontalMovement >= 0){
-                    HorizontalValue = 1;}
-                else if (HorizontalMovement < 0){
-                    HorizontalValue = -1;}}}
+                if (Input.GetTouch(0).phase == TouchPhase.Moved){
+                    if (Input.GetTouch(0).deltaPosition.x >= 0){
+                        HorizontalValue = 1;}
+                    else if (Input.GetTouch(0).deltaPosition.x < 0){
+                        HorizontalValue = -1;}
+                    if (Input.GetTouch(0).deltaPosition.x >= 0){
+                        VerticalValue = 1;}
+                    else if (Input.GetTouch(0).deltaPosition.x < 0){
+                        VerticalValue = -1;}}
+                for(int i = 0; i < 3; i++){
+                    Party[i].localScale = new Vector3(Mathf.Sign(HorizontalValue), 1, 1);}}
             else{HorizontalValue = 0;}
-            for(int i = 0; i < 3; i++){Party[i].localScale = new Vector3(Mathf.Sign(HorizontalValue), 1, 1);}
             Party[0].position = Party[0].position + new Vector3(HorizontalValue * 0.2f, 0, 0);}
             Party[1].position = new Vector3(Party[0].position.x - 2 * Party[0].localScale.x, 0, 0);
             Party[2].position = new Vector3(Party[0].position.x - 4 * Party[0].localScale.x, 0, 0);
@@ -60,5 +64,5 @@ public class Overworld : MonoBehaviour{
                     FGSpriteRenderer[i].sprite = FGSprites[CurFG];}}
             if(CurFG == 1 && Party[0].position.x == 0 && !BuildOn){
                 BuildOn = true;
-                Building[0] = Instantiate(BuildingFab[0], new Vector3(Party[0].position.x + 50, 1, 0), Quaternion.identity);
+                Building[0] = Instantiate(BuildingFab[0]);
                 Building[0].name = BuildingFab[0].name;}}}

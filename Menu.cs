@@ -13,9 +13,8 @@ public class Menu : MonoBehaviour{
     public Transform ProgressButton;
     public TextMeshProUGUI ProgressTxt;
     public int Prisms;
-    void Start(){MenuScreen.gameObject.SetActive(false);}
-    public void MenuOff(){MenuButton.gameObject.SetActive(false);}
-    public void MenuOn(){MenuButton.gameObject.SetActive(true);}
+    void Start(){
+        MenuScreen.gameObject.SetActive(false);}
     public void MenuOpen(){
         MenuButton.gameObject.SetActive(false);
         MenuScreen.gameObject.SetActive(true);
@@ -38,14 +37,17 @@ public class Menu : MonoBehaviour{
         ButtonsOff();
         for(int i = 0; i < 3; i++){
             PartyTxt.text += "HP: " + Char.CharDatabase[Over.Party[i].name].HP + "\n" + 
+                        "Attack: " + Char.CharDatabase[Over.Party[i].name].LVL + "\n" +
                         "Level: " + Char.CharDatabase[Over.Party[i].name].LVL + "\n" +
                         "Exp Needed: " + (Char.CharDatabase[Over.Party[i].name].XPN - Char.CharDatabase[Over.Party[i].name].EXP) + "\n";}}
     public void PullMenu(){
         ButtonsOff();
         if(Prisms >= 1000){
             Prisms -= 1000;
-            for(int i = 0; i < 10; i++){PullTxt.text += Random.Range(3,6) + " Star" + "\n";}}
-        else{PullTxt.text = "Not Enough Prisms";}}
+            for(int i = 0; i < 10; i++){
+                PullTxt.text += Random.Range(3,6) + " Star" + "\n";}}
+        else{
+            PullTxt.text = "Not Enough Prisms";}}
     public void ProgressMenu(){
         ButtonsOff();
         ProgressTxt.text = "Climb the Black City Tower";}}

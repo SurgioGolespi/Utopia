@@ -16,7 +16,7 @@ public class Character : MonoBehaviour{
                 LVL = 1,
                 ATK = 10,
                 XPN = 100,
-                Skill = new string[] {"Utopic Will", "Utopic Wrath", "Utopic Wager"}, 
+                Skill = new string[] {"Utopic Wrath", "Utopic Will", "Utopic Wager"}, 
                 Role = new string[]{"Attack", "Heal", "Stack"}}},
         {"Party1", new Stats{
                 HP = 100,
@@ -32,7 +32,7 @@ public class Character : MonoBehaviour{
                 LVL = 1,
                 ATK = 10,
                 XPN = 100,
-                Skill = new string[] {"Data Breach", "Data Crash", "Data Drive"}, 
+                Skill = new string[] {"Data Crash", "Data Drive", "Data Breach"}, 
                 Role = new string[]{"Attack", "Heal", "Stack"}}},
         {"Enemy0", new Stats{
                 HP = 100,
@@ -43,8 +43,6 @@ public class Character : MonoBehaviour{
         {"Enemy2", new Stats{
                 HP = 100,
                 ATK = 10}}};
-        public int DamageMod(string Name, int Position){
-                return CharDatabase[Name].ATK;}
         public bool LevelUp(string Name, int Amount){
                 CharDatabase[Name].EXP += Amount;
                 if(CharDatabase[Name].EXP >= CharDatabase[Name].XPN){

@@ -18,7 +18,9 @@ public class Battle : MonoBehaviour{
     public int AttackCount;
     public int TurnCount;
     public int[] PHP = new int[3];
+    public int[] PATK = new int[3];
     public int[] EHP = new int[3];
+    public int[] EATK = new int[3];
     public int[] Position = new int[3];
     public bool[] Used = new bool[3];
     void Start(){
@@ -36,8 +38,11 @@ public class Battle : MonoBehaviour{
         for(int i = 0; i < 3; i++){
             Used[i] = false;
             Position[i] = 0;
+            Over.EnemySpriteRenderer[i].sprite = Over.EnemySprite[i];
             PHP[i] = Char.CharDatabase[Over.Party[i].name].HP;
+            PATK[i] = Char.CharDatabase[Over.Party[i].name].ATK;
             EHP[i] = Char.CharDatabase[Over.Enemy[i].name].HP;
+            EATK[i] = Char.CharDatabase[Over.Enemy[i].name].ATK;
             PartyHP[i].fillAmount = PHP[i]/Char.CharDatabase[Over.Party[i].name].HP;
             EnemyHP[i].fillAmount = EHP[i]/Char.CharDatabase[Over.Enemy[i].name].HP;
             SkillTxt[i].text = Over.Party[i].name;}}
@@ -61,28 +66,42 @@ public class Battle : MonoBehaviour{
                 EnemyAttack();}
             else{BattleState = 0;}}}
     public void SKill0(){
-        if((BattleState != 2 || EHP[0] > 0) && (BattleState != 0 || Used[0] != true) && (Over.Enemy[0] != null)){
+        if((BattleState != 2 || EHP[0] > 0 || Char.CharDatabase[Over.Party[Position[0]].name].Role[Position[1]] != "Attack") 
+            && (BattleState != 0 || Used[0] != true) && (Over.Enemy[0] != null)){
             Position[BattleState] = 0;
             BattleUp();}}
      public void Skill1(){
-        if((BattleState != 2 || EHP[1] > 0) && (BattleState != 0 || Used[1] != true) && (Over.Enemy[0] != null)){
+        if((BattleState != 2 || EHP[1] > 0 || Char.CharDatabase[Over.Party[Position[0]].name].Role[Position[1]] != "Attack") 
+            && (BattleState != 0 || Used[1] != true) && (Over.Enemy[0] != null)){
             Position[BattleState] = 1;
             BattleUp();}}
      public void Skill2(){
-        if((BattleState != 2 || EHP[2] > 0) && (BattleState != 0 || Used[2] != true) && (Over.Enemy[0] != null)){
+        if((BattleState != 2 || EHP[2] > 0 || Char.CharDatabase[Over.Party[Position[0]].name].Role[Position[1]] != "Attack") 
+            && (BattleState != 0 || Used[2] != true) && (Over.Enemy[0] != null)){
             Position[BattleState] = 2;
             BattleUp();}}
     public void PlayerAttack(){
-        EHP[Position[2]] -= Char.DamageMod(Over.Party[Position[0]].name, Position[1]);
-        StartCoroutine(DamageFade(EDamageTxt[Position[2]], Char.DamageMod(Over.Party[Position[0]].name, Position[1]).ToString()));
-        EnemyHP[Position[2]].fillAmount = (float)EHP[Position[2]]/Char.CharDatabase[Over.Enemy[Position[2]].name].HP;}
+        if(Char.CharDatabase[Over.Party[Position[0]].name].Role[Position[1]] == "Attack"){
+            EHP[Position[2]] -= PATK[Position[0]];
+            if(EHP[Position[2]] <= 0){
+                Over.EnemySpriteRenderer[Position[2]].sprite = Over.EnemySprite[3];}
+            StartCoroutine(DamageFade(EDamageTxt[Position[2]], PATK[Position[0]].ToString()));
+            EnemyHP[Position[2]].fillAmount = (float)EHP[Position[2]]/Char.CharDatabase[Over.Enemy[Position[2]].name].HP;}
+        if(Char.CharDatabase[Over.Party[Position[0]].name].Role[Position[1]] == "Heal"){
+            PDamageTxt[Position[2]].color = Color.green;
+            StartCoroutine(DamageFade(PDamageTxt[Position[2]], PATK[Position[0]].ToString()));
+            if(PHP[Position[2]] + PATK[Position[0]] <= Char.CharDatabase[Over.Party[Position[2]].name].HP){
+                PHP[Position[2]] += PATK[Position[0]];
+                PartyHP[Position[2]].fillAmount = (float)PHP[Position[2]]/Char.CharDatabase[Over.Party[Position[2]].name].HP;}}
+        if(Char.CharDatabase[Over.Party[Position[0]].name].Role[Position[1]] == "Stack"){
+            PATK[Position[0]] *= 2;}}
     public void EnemyAttack(){
         for(int i = 0; i < 3; i++){
             Used[i] = false;
             if(EHP[i] > 0){
                 int Target = Random.Range(0,3);
-                PHP[Target] -= Char.DamageMod(Over.Enemy[i].name, TurnCount % 3);
-                StartCoroutine(DamageFade(PDamageTxt[Target], Char.DamageMod(Over.Enemy[i].name, TurnCount % 3).ToString()));
+                PHP[Target] -= EATK[i];
+                StartCoroutine(DamageFade(PDamageTxt[Target], EATK[i].ToString()));
                 PartyHP[Target].fillAmount = (float)PHP[Target]/Char.CharDatabase[Over.Party[Target].name].HP;}}
         BattleState = 0;
         TurnCount++;}
@@ -100,4 +119,5 @@ public class Battle : MonoBehaviour{
     IEnumerator DamageFade(TextMeshProUGUI Text, string Txt){
         Text.text = Txt;
         yield return new WaitForSeconds(1f);
+        Text.color = Color.white;
         Text.text = "";}} 

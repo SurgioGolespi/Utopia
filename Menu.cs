@@ -37,7 +37,7 @@ public class Menu : MonoBehaviour{
         ButtonsOff();
         for(int i = 0; i < 3; i++){
             PartyTxt.text += "HP: " + Char.CharDatabase[Over.Party[i].name].HP + "\n" + 
-                        "Attack: " + Char.CharDatabase[Over.Party[i].name].LVL + "\n" +
+                        "Attack: " + Char.CharDatabase[Over.Party[i].name].ATK + "\n" +
                         "Level: " + Char.CharDatabase[Over.Party[i].name].LVL + "\n" +
                         "Exp Needed: " + (Char.CharDatabase[Over.Party[i].name].XPN - Char.CharDatabase[Over.Party[i].name].EXP) + "\n";}}
     public void PullMenu(){
@@ -50,4 +50,4 @@ public class Menu : MonoBehaviour{
             PullTxt.text = "Not Enough Prisms";}}
     public void ProgressMenu(){
         ButtonsOff();
-        ProgressTxt.text = "Climb the Black City Tower";}}
+        ProgressTxt.text = "Climb the Black Tower";}}

@@ -13,8 +13,16 @@ public class Menu : MonoBehaviour{
     public Transform ProgressButton;
     public TextMeshProUGUI ProgressTxt;
     public int Prisms;
+    public int[] PartyIndex;
+    public int[] EnemyIndex;
     void Start(){
-        MenuScreen.gameObject.SetActive(false);}
+        PartyIndex = new int[]{0,1,2};
+        EnemyIndex = new int[]{0,1,2};
+        MenuScreen.gameObject.SetActive(false);
+        Over.BuildSpriteRenderer[0].sprite = null;
+        for(int i = 0; i < 3; i++){
+            Over.EnemySpriteRenderer[i].sprite = null;
+            Over.Party[i].name = Over.PartySprite[PartyIndex[i]].name;}}
     public void MenuOpen(){
         MenuButton.gameObject.SetActive(false);
         MenuScreen.gameObject.SetActive(true);

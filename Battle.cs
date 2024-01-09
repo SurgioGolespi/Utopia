@@ -28,6 +28,7 @@ public class Battle : MonoBehaviour{
         Activate(EnemyHPBar, false);
         Activate(Skill, false);}
     public void BattleStart(){
+        Over.BattleOn = true;
         Mnu.MenuButton.gameObject.SetActive(false);
         AttackCount = 0; 
         BattleState = 0; 
@@ -84,15 +85,17 @@ public class Battle : MonoBehaviour{
         if(Char.CharDatabase[Over.Party[Position[0]].name].Role[Position[1]] == "Attack"){
             EHP[Position[2]] -= PATK[Position[0]];
             if(EHP[Position[2]] <= 0){
-                Over.EnemySpriteRenderer[Position[2]].sprite = Over.EnemySprite[3];}
+                Over.EnemySpriteRenderer[Position[2]].sprite = null;}
             StartCoroutine(DamageFade(EDamageTxt[Position[2]], PATK[Position[0]].ToString()));
             EnemyHP[Position[2]].fillAmount = (float)EHP[Position[2]]/Char.CharDatabase[Over.Enemy[Position[2]].name].HP;}
         if(Char.CharDatabase[Over.Party[Position[0]].name].Role[Position[1]] == "Heal"){
             PDamageTxt[Position[2]].color = Color.green;
             StartCoroutine(DamageFade(PDamageTxt[Position[2]], PATK[Position[0]].ToString()));
             if(PHP[Position[2]] + PATK[Position[0]] <= Char.CharDatabase[Over.Party[Position[2]].name].HP){
-                PHP[Position[2]] += PATK[Position[0]];
-                PartyHP[Position[2]].fillAmount = (float)PHP[Position[2]]/Char.CharDatabase[Over.Party[Position[2]].name].HP;}}
+                PHP[Position[2]] += PATK[Position[0]];}
+            else{
+                PHP[Position[2]] += Char.CharDatabase[Over.Party[Position[2]].name].HP;}
+            PartyHP[Position[2]].fillAmount = (float)PHP[Position[2]]/Char.CharDatabase[Over.Party[Position[2]].name].HP;}
         if(Char.CharDatabase[Over.Party[Position[0]].name].Role[Position[1]] == "Stack"){
             PATK[Position[0]] *= 2;}}
     public void EnemyAttack(){
@@ -106,13 +109,14 @@ public class Battle : MonoBehaviour{
         BattleState = 0;
         TurnCount++;}
     public void BattleEnd(){
+        Over.BattleOn = false;
         Mnu.MenuButton.gameObject.SetActive(true);
         Activate(PartyHPBar, false);
         Activate(EnemyHPBar, false);
         Activate(Skill, false);
         for(int i = 0; i < 3; i++){
             if(Char.LevelUp(Over.Party[i].name, 100)){StartCoroutine(DamageFade(PDamageTxt[i], "Level Up"));};
-            Destroy(Over.Enemy[i].gameObject);}}
+            Over.EnemySpriteRenderer[i].sprite = null;}}
     private void Activate(Transform[] Object, bool State){
         foreach(Transform Obj in Object){
             Obj.gameObject.SetActive(State);}}

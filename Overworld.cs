@@ -5,31 +5,28 @@ public class Overworld : MonoBehaviour{
     public Transform[] Party;
     public Transform[] Enemy;
     public Transform[] Foreground;
-    public Transform[] EnemyFab;
-    public Transform[] PartyFab;
-    public Transform[] BuildingFab;
     public Transform[] Building;
     public Sprite[] FGSprite;
     public SpriteRenderer[] FGSpriteRenderer;
     public Sprite[] EnemySprite;
     public SpriteRenderer[] EnemySpriteRenderer;
+    public Sprite[] PartySprite;
+    public SpriteRenderer[] PartySpriteRenderer;
+    public Sprite[] BuildSprite;
+    public SpriteRenderer[] BuildSpriteRenderer;
     public Transform Camera;
     private Vector3 Position;
     public int Steps;
     public int CurFG;
     public bool MenuOn;
     public bool BuildOn;
+    public bool BattleOn;
     public AudioSource Soundtrack;
     public float HorizontalValue;
     public float VerticalValue;
-    void Start(){
-        Soundtrack.Play();
-        for(int i = 0; i < 3; i++){
-                Party[i] = Instantiate(PartyFab[Mnu.CurrentParty[i]], Position + new Vector3(- 2 * i, 0, 0), Quaternion.identity);
-                Party[i].name = PartyFab[Mnu.CurrentParty[i]].name;}}
     void Update(){
-        if(Enemy[0] == null && MenuOn == false){
-            if (Input.touchCount > 0){
+        if(!BattleOn && MenuOn == false){
+            if(Input.touchCount > 0){
                 if (Input.GetTouch(0).phase == TouchPhase.Moved){
                     if (Input.GetTouch(0).deltaPosition.x >= 0){
                         HorizontalValue = 1;}
@@ -57,9 +54,9 @@ public class Overworld : MonoBehaviour{
                 Steps++;
                 for(int i = 0; i < 3; i++){
                     Party[i].localScale = new Vector3(1,1,1);
-                    Enemy[i] = Instantiate(EnemyFab[i], new Vector3(Party[0].position.x + 8 + 2 * i, 0, 0), Quaternion.identity);
-                    EnemySpriteRenderer[i] = Enemy[i].GetComponent<SpriteRenderer>();
-                    Enemy[i].name = EnemyFab[i].name;}
+                    EnemySpriteRenderer[i].sprite = EnemySprite[i];
+                    Enemy[i].name = EnemySprite[Mnu.EnemyIndex[i]].name;
+                    Enemy[i].position = Party[0].position + new Vector3(8 + 2 * i, 0, 0);}
                 Btl.BattleStart();}
             if(Party[0].position.x > 500 || Party[0].position.x < 0){
                 CurFG = (Party[0].position.x > 0) ? (CurFG + 1) % 3 : (CurFG + 2) % 3;
@@ -69,5 +66,4 @@ public class Overworld : MonoBehaviour{
                     FGSpriteRenderer[i].sprite = FGSprite[CurFG];}}
             if(CurFG == 1 && Party[0].position.x == 0 && !BuildOn){
                 BuildOn = true;
-                Building[0] = Instantiate(BuildingFab[0]);
-                Building[0].name = BuildingFab[0].name;}}}
+                BuildSpriteRenderer[0].sprite = BuildSprite[0];}}}

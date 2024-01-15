@@ -9,8 +9,10 @@ public class Overworld : MonoBehaviour{
     public Camera MainCam;
     public float Horizontal;
     public float Vertical;
+    public bool MoveOn;
     void Update(){
-        TouchScreen();
+        if(MoveOn){
+            TouchScreen();}
         Party[0].transform.Translate(Horizontal * Time.deltaTime * 15, 0, 0);
         Party[1].transform.position = Party[0].transform.position + new Vector3(-2 * Party[0].transform.localScale.x, 0, 0);
         Party[2].transform.position = Party[0].transform.position + new Vector3(-4 * Party[0].transform.localScale.x, 0, 0);

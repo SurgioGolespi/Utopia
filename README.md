@@ -9,3 +9,5 @@ Endless Foreground
 Party Following
 
 Changing Areas
+
+Menu Button

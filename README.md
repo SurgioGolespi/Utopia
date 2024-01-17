@@ -11,3 +11,9 @@ Party Following
 Changing Areas
 
 Menu Button
+
+Party Button
+
+Pull Button
+
+Path Button

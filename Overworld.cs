@@ -23,8 +23,10 @@ public class Overworld : MonoBehaviour{
         foreach(SpriteRenderer i in Foreground){
             i.transform.position = ((Party[0].transform.position.x - i.transform.position.x) * Horizontal >= 40) 
             ? new Vector3(i.transform.position.x + 66 * Horizontal, 0, 0): i.transform.position;
-        if(Party[0].transform.position.x >= 500){
-            ChangeArea();}}}
+        if(Party[0].transform.position.x > 500){
+            AreaPlus();}
+        if(Party[0].transform.position.x < 0){
+            AreaMinus();}}}
     public void TouchScreen(){
         if(Input.touchCount > 0){
             if(Input.GetTouch(0).phase == TouchPhase.Moved){
@@ -33,8 +35,13 @@ public class Overworld : MonoBehaviour{
         else{
             Horizontal = 0;
             Vertical = 0;}}
-    public void ChangeArea(){
+    public void AreaPlus(){
         foreach(SpriteRenderer i in Foreground){
             Party[0].transform.position = new Vector3(0,0,0);
             i.transform.position += new Vector3(-500,0,0);
-            i.sprite = FGSprite[(Array.IndexOf(FGSprite, i.sprite) + 1) % 3];}}}
+            i.sprite = FGSprite[(Array.IndexOf(FGSprite, i.sprite) + 1) % 3];}}
+    public void AreaMinus(){
+        foreach(SpriteRenderer i in Foreground){
+            Party[0].transform.position = new Vector3(500,0,0);
+            i.transform.position += new Vector3(500,0,0);
+            i.sprite = FGSprite[(Array.IndexOf(FGSprite, i.sprite) + 2) % 3];}}}

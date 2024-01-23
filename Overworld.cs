@@ -1,5 +1,4 @@
 using System.Collections;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 public class Overworld : MonoBehaviour{
@@ -16,11 +15,14 @@ public class Overworld : MonoBehaviour{
     public float Horizontal;
     public float Vertical;
     public bool MoveOn;
+    public bool InsideOn;
     public int Area;
     void Update(){
         if(MoveOn){
             TouchScreen();}
         Party[0].transform.Translate(Horizontal * Time.deltaTime * 50, 0, 0);
+        if(InsideOn){
+            Party[0].transform.position = new Vector3(Mathf.Clamp(Party[0].transform.position.x, 0, 500), 0, 0);}
         Party[1].transform.position = Party[0].transform.position + new Vector3(-2 * Party[0].transform.localScale.x, 0, 0);
         Party[2].transform.position = Party[0].transform.position + new Vector3(-4 * Party[0].transform.localScale.x, 0, 0);
         Party[0].transform.localScale = (Horizontal != 0) ? new Vector3(Horizontal, 1, 1) : new Vector3(Party[0].transform.localScale.x, 1, 1);
@@ -39,10 +41,10 @@ public class Overworld : MonoBehaviour{
             if(Input.GetTouch(0).phase == TouchPhase.Moved){
                 Horizontal = (Mathf.Abs(Input.GetTouch(0).deltaPosition.x) > 5) ? Mathf.Sign(Input.GetTouch(0).deltaPosition.x) : Horizontal;
                 Vertical = (Mathf.Abs(Input.GetTouch(0).deltaPosition.y) > 5) ? Mathf.Sign(Input.GetTouch(0).deltaPosition.y) : Vertical;}
-            if(Input.GetTouch(0).phase == TouchPhase.Began){
+            if(Input.GetTouch(0).phase == TouchPhase.Began && NPC[0].sprite != null){
                 if(Vector3.Distance(Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, 10)), 
                 NPC[0].transform.position) < 1){
-                    MenuObj.DialogueStart();}}}
+                    MenuObj.DialogueRun();}}}
         else{
             Horizontal = 0;
             Vertical = 0;}
@@ -74,10 +76,14 @@ public class Overworld : MonoBehaviour{
     public void GoInside(){
         if(Area == 1 && Vector3.Distance(Party[0].transform.position, Build[0].transform.position) <= 2.5f){
             if(Vertical == 1){
+                InsideOn = true;
+                NPC[0].sprite = null;
                 Build[0].sprite = null;
                 foreach(SpriteRenderer i in Foreground){
                     i.sprite = InsideSprite[0];}}
             else if(Vertical == -1){
+                InsideOn = false;
+                NPC[0].sprite = PartySprite[1];
                 Build[0].sprite = BuildSprite[0];
                 foreach(SpriteRenderer i in Foreground){
                     i.sprite = ForegroundSprite[Area];}}}}}

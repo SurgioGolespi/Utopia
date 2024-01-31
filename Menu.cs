@@ -4,9 +4,11 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.IO;
+using System;
 public class Menu : MonoBehaviour{
-    [Header("GameObjects")]
+    [Header("Script Objects")]
     public Overworld OverworldObj;
+    [Header("Game Objects")]
     public Transform LoginScreen;
     public TextMeshProUGUI AppText;
     public TextMeshProUGUI MenuButtonText;
@@ -19,10 +21,15 @@ public class Menu : MonoBehaviour{
     public Transform BackButton;
     public Transform PartyScroll;
     public Image[] PartyScrollContent;
+    public Transform PullScroll;
+    public Image[] PullScrollContent;
     [Header("Pull Variables")]
     public int Prisms;
-    public string PullResults;
+    public string PullResult;
     public int PullIndex;
+    public int PullAmount;
+    public bool PullOn;
+    public Sprite[] BannerSprite;
     [Header("Dialogue Variables")]
     public string[] Dialogue;
     public int DialogueIndex;
@@ -31,67 +38,88 @@ public class Menu : MonoBehaviour{
     public bool OrderOn;
     public int[] NewPartyOrder;
     public int OrderIndex;
+    public int[] PartyOwned;
+    public bool InParty;
     public void Login(){
         LoginScreen.gameObject.SetActive(false);
         OverworldObj.MoveOn = true;}
     public void MenuOn(){
+        OverworldObj.MoveOn = !OverworldObj.MoveOn;
         if(MenuScreen.transform.gameObject.activeSelf){
                 MenuButtonText.text = "Menu";
-                OverworldObj.MoveOn = true;
                 MenuScreen.gameObject.SetActive(false);
                 PartyScroll.gameObject.SetActive(false);
-                if(StatsOn || OrderOn){
-                    AppText.text = "";
-                    OrderIndex = 0;
-                     for(int i = 0; i < 3; i++){
-                        NewPartyOrder[i] = -1;}
-                    PartyScroll.gameObject.SetActive(false);
-                    StatsOn = false;
-                    OrderOn = false;}}
+                PullScroll.gameObject.SetActive(false);
+                AppText.text = "";
+                OrderIndex = 0;
+                for(int i = 0; i < 3; i++){
+                    NewPartyOrder[i] = -1;}
+                StatsOn = false;
+                OrderOn = false;
+                PullOn = false;}
         else{
             MenuButtonText.text = "X";
-            AppText.text = "";
             foreach(Transform i in App){
                 i.gameObject.SetActive(true);}
-            MenuScreen.transform.gameObject.SetActive(true);
-            OverworldObj.MoveOn = false;}}
+            MenuScreen.transform.gameObject.SetActive(true);}}
     public void Party(){
         PartyScroll.gameObject.SetActive(true);
-        for(int i = 0; i < PartyScrollContent.Length; i++){
-            PartyScrollContent[i].name = OverworldObj.PartySprite[i].name;
-            PartyScrollContent[i].sprite = OverworldObj.PartySprite[i];}
+        foreach(Image i in PartyScrollContent){
+            i.gameObject.SetActive(false);}
+        for(int i = 0; i < PartyOwned.Length; i++){
+            PartyScrollContent[PartyOwned[i]].gameObject.SetActive(true);
+            PartyScrollContent[PartyOwned[i]].name = OverworldObj.PartySprite[PartyOwned[i]].name;
+            PartyScrollContent[PartyOwned[i]].sprite = OverworldObj.PartySprite[PartyOwned[i]];}
         foreach(Transform i in App){
             i.gameObject.SetActive(false);}}
      public void Pull(){
         foreach(Transform i in App){
             i.gameObject.SetActive(false);}
-        if(Prisms >= 1000){
-            MenuButton.gameObject.SetActive(false);
-            BackButton.gameObject.SetActive(false);
-            PullImage.gameObject.SetActive(true);
-            Prisms -= 1000;
-            MenuScreen.color = Color.black;
-            StartCoroutine(PullEffect());}
-        else{
-            AppText.text = "Not Enough Prisms";}}
+        PullScroll.gameObject.SetActive(true);
+        foreach(Image i in PullScrollContent){
+            i.gameObject.SetActive(false);}
+        for(int i = 0; i < BannerSprite.Length; i++){
+            PullScrollContent[i].gameObject.SetActive(true);
+            PullScrollContent[i].sprite = BannerSprite[i];}}
     public void PathRun(){
         foreach(Transform i in App){
             i.gameObject.SetActive(false);}
         AppText.text = "Reach the Black Tower";}
-    IEnumerator PullEffect(){
-        for(int i = 0; i < 10; i++){
-            PullIndex = Random.Range(0,3);
-            PullResults += OverworldObj.Party[PullIndex].name + " ";
-            PullImage.sprite = OverworldObj.Party[PullIndex].sprite;
-            yield return new WaitForSeconds(0.5f);
-            yield return new WaitUntil(() => Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began);}
-        AppText.text = PullResults;
-        PullImage.sprite = null;
-        PullResults = "";
-        MenuScreen.color = Color.white;
-        PullImage.gameObject.SetActive(false);
-        BackButton.gameObject.SetActive(true);
-        MenuButton.gameObject.SetActive(true);}
+    IEnumerator PullRun(){
+        if(PullOn){
+            if(Prisms - PullAmount * 100 >= 0){
+                Prisms -= PullAmount * 100;
+                PullScroll.gameObject.SetActive(false);
+                MenuButton.gameObject.SetActive(false);
+                BackButton.gameObject.SetActive(false);
+                PullImage.gameObject.SetActive(true);
+                MenuScreen.color = Color.black;
+                for(int i = 0; i < PullAmount; i++){
+                    PullIndex = UnityEngine.Random.Range(0,4);
+                    AddParty(PullIndex);
+                    PullResult += OverworldObj.PartySprite[PullIndex].name + " ";
+                    PullImage.sprite = OverworldObj.PartySprite[PullIndex];
+                    yield return new WaitForSeconds(0.5f);
+                    yield return new WaitUntil(() => Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began);}
+                MenuScreen.color = Color.white;
+                PullImage.sprite = null;
+                PullImage.gameObject.SetActive(false);
+                AppText.text = PullResult;
+                PullResult = "";
+                yield return new WaitForSeconds(0.5f);
+                yield return new WaitUntil(() => Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began);
+                AppText.text = "";
+                PullScroll.gameObject.SetActive(true);
+                BackButton.gameObject.SetActive(true);
+                MenuButton.gameObject.SetActive(true);
+                PullOn = false;}
+            else{
+                PullScroll.gameObject.SetActive(false);
+                AppText.text = "Not Enough Prisms";
+                yield return new WaitForSeconds(0.5f);
+                yield return new WaitUntil(() => Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began);
+                AppText.text = "";
+                PullScroll.gameObject.SetActive(true);}}}
     public void DialogueRun(){
         if(DialogueText.text == ""){
             DialogueIndex = 0;
@@ -108,28 +136,29 @@ public class Menu : MonoBehaviour{
                 DialogueBox.gameObject.SetActive(false);
                 OverworldObj.MoveOn = true;}}}
     public void MenuBack(){
+        AppText.text = "";
         if(StatsOn || OrderOn){
-            AppText.text = "";
             OrderIndex = 0;
             PartyScroll.gameObject.SetActive(true);
             StatsOn = false;
             OrderOn = false;
             for(int i = 0; i < 3; i++){
                 NewPartyOrder[i] = -1;}}
+        else if(PullOn){
+            PullOn = false;}
         else if(!App[0].gameObject.activeSelf){
             PartyScroll.gameObject.SetActive(false);
-            AppText.text = "";
+            PullScroll.gameObject.SetActive(false);
             foreach(Transform i in App){
                 i.gameObject.SetActive(true);}}
         else{
-            PartyScroll.gameObject.SetActive(false);
             MenuOn();}}
-    public void TestFunc(int PSCIndex){
+    public void PartyRun(int PSCIndex){
         if(StatsOn){
             PartyScroll.gameObject.SetActive(false);
-            AppText.text = OverworldObj.PartySprite[PSCIndex].name;}
+            AppText.text = OverworldObj.PartySprite[PartyOwned[PSCIndex]].name;}
         if(OrderOn && NewPartyOrder[0] != PSCIndex && NewPartyOrder[1] != PSCIndex){
-            NewPartyOrder[OrderIndex] = PSCIndex;
+            NewPartyOrder[OrderIndex] = PartyOwned[PSCIndex];
             OrderIndex++;
             if(OrderIndex == 3){
                 for(int i = 0; i < 3; i++){
@@ -138,8 +167,21 @@ public class Menu : MonoBehaviour{
                 OrderIndex = 0;
                 MenuBack();}}}
     public void StatsRun(){
-        if(!OrderOn){
+        if(!OrderOn && !StatsOn){
             StatsOn = true;}}
-     public void OrderRun(){
-        if(!StatsOn){
-            OrderOn = true;}}};
+    public void OrderRun(){
+        if(!StatsOn && !OrderOn){
+            OrderOn = true;}}
+    public void SetPull(int PAIndex){
+            PullAmount = PAIndex;
+            PullOn = true;}
+    public void StartPull(){
+        StartCoroutine(PullRun());}
+    public void AddParty(int APIndex){
+        foreach(int i in PartyOwned){
+            if(i == APIndex){
+                InParty = true;}}
+        if(!InParty){
+            Array.Resize(ref PartyOwned, PartyOwned.Length + 1);
+            PartyOwned[PartyOwned.Length - 1] = APIndex;}
+        InParty = false;}};

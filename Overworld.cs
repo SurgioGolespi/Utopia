@@ -2,33 +2,40 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 public class Overworld : MonoBehaviour{
+    [Header("Script Objects")]
+    public Menu MenuObj;
+    public Battle BattleObj;
+    [Header("Game Objects")]
     public SpriteRenderer[] Party;
     public SpriteRenderer[] Foreground;
     public SpriteRenderer[] Build;
     public SpriteRenderer[] NPC;
+    public SpriteRenderer[] Enemy;
     public Sprite[] PartySprite;
+    public Sprite[] EnemySprite;
     public Sprite[] ForegroundSprite;
     public Sprite[] BuildSprite;
     public Sprite[] InsideSprite;
-    public Menu MenuObj;
     public Camera MainCam;
+    [Header("Move Variables")]
     public float Horizontal;
     public float Vertical;
     public bool MoveOn;
     public bool InsideOn;
     public int Area;
+    public Vector3 Position;
+    public int Steps;
     void Update(){
-        if(MoveOn){
-            TouchScreen();}
-        Party[0].transform.Translate(Horizontal * Time.deltaTime * 50, 0, 0);
+        TouchScreen();
+        CountSteps();
+        Party[0].transform.Translate(Horizontal * Time.deltaTime * 10, 0, 0);
         if(InsideOn){
             Party[0].transform.position = new Vector3(Mathf.Clamp(Party[0].transform.position.x, 0, 500), 0, 0);}
-        Party[1].transform.position = Party[0].transform.position + new Vector3(-2 * Party[0].transform.localScale.x, 0, 0);
-        Party[2].transform.position = Party[0].transform.position + new Vector3(-4 * Party[0].transform.localScale.x, 0, 0);
-        Party[0].transform.localScale = (Horizontal != 0) ? new Vector3(Horizontal, 1, 1) : new Vector3(Party[0].transform.localScale.x, 1, 1);
+        Party[1].transform.position = Party[0].transform.position + new Vector3(-3 * Party[0].transform.localScale.x, 0, 0);
+        Party[2].transform.position = Party[0].transform.position + new Vector3(-6 * Party[0].transform.localScale.x, 0, 0);
         Party[1].transform.localScale = new Vector3(Party[0].transform.localScale.x, 1, 1);
         Party[2].transform.localScale = new Vector3(Party[0].transform.localScale.x, 1, 1);
-        MainCam.transform.position = Party[0].transform.position + new Vector3(4, 2.2f, -10);
+        MainCam.transform.position = Party[0].transform.position + new Vector3(3, 2.2f, -10);
         foreach(SpriteRenderer i in Foreground){
             i.transform.position = ((Party[0].transform.position.x - i.transform.position.x) * Horizontal >= 40) 
             ? new Vector3(i.transform.position.x + 66 * Horizontal, 2.68f, 0): i.transform.position;
@@ -37,10 +44,11 @@ public class Overworld : MonoBehaviour{
         if(Party[0].transform.position.x < 0){
             AreaMinus();}}}
     public void TouchScreen(){
-        if(Input.touchCount > 0){
+        if(Input.touchCount > 0 && MoveOn){
             if(Input.GetTouch(0).phase == TouchPhase.Moved){
                 Horizontal = (Mathf.Abs(Input.GetTouch(0).deltaPosition.x) > 5) ? Mathf.Sign(Input.GetTouch(0).deltaPosition.x) : Horizontal;
                 Vertical = (Mathf.Abs(Input.GetTouch(0).deltaPosition.y) > 5) ? Mathf.Sign(Input.GetTouch(0).deltaPosition.y) : Vertical;}
+            Party[0].transform.localScale = (Horizontal != 0) ? new Vector3(Horizontal, 1, 1) : new Vector3(Party[0].transform.localScale.x, 1, 1);
             if(Input.GetTouch(0).phase == TouchPhase.Began && NPC[0].sprite != null){
                 if(Vector3.Distance(Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, 10)), 
                 NPC[0].transform.position) < 1){
@@ -86,4 +94,17 @@ public class Overworld : MonoBehaviour{
                 NPC[0].sprite = PartySprite[1];
                 Build[0].sprite = BuildSprite[0];
                 foreach(SpriteRenderer i in Foreground){
-                    i.sprite = ForegroundSprite[Area];}}}}}
+                    i.sprite = ForegroundSprite[Area];}}}}
+    public void CountSteps(){
+        if(Horizontal != 0 && Area != 1){
+            Steps++;}
+        if(Steps % 10000 == 0){
+            Steps++;
+            MoveOn = false;
+            Party[0].transform.localScale = new Vector3(1,1,1);
+            for(int i = 0; i < 3; i++){
+                Enemy[i].gameObject.SetActive(true);
+                Enemy[i].transform.position = Party[0].transform.position + new Vector3(6 + 3 * i, 0, 0);
+                Enemy[i].sprite = EnemySprite[i];
+                Enemy[i].name = EnemySprite[i].name;}
+            BattleObj.BattleOn();}}}

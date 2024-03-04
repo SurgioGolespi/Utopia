@@ -154,6 +154,8 @@ public class Menu : MonoBehaviour{
         if(StatsOn){
             PartyScroll.gameObject.SetActive(false);
             AppText.text = OverworldObj.PartySprite[PartyOwned[PSCIndex]].name + "\n" +
+            "LV: " + BattleObj.PartyStats[PartyOwned[PSCIndex]].LV + "\n" +
+            "EP Needed until next LV: " + BattleObj.PartyStats[PartyOwned[PSCIndex]].EP + "/" +  BattleObj.PartyStats[PartyOwned[PSCIndex]].EN + "\n" +
             "HP: " + BattleObj.PartyStats[PartyOwned[PSCIndex]].HP + "\n" +
             "AP: " + BattleObj.PartyStats[PartyOwned[PSCIndex]].AP;}
         if(OrderOn && NewPartyOrder[0] != PSCIndex && NewPartyOrder[1] != PSCIndex){

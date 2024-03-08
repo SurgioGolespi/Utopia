@@ -37,8 +37,8 @@ public class Overworld : MonoBehaviour{
         Party[2].transform.localScale = new Vector3(Party[0].transform.localScale.x, 1, 1);
         MainCam.transform.position = Party[0].transform.position + new Vector3(3, 2.2f, -10);
         foreach(SpriteRenderer i in Foreground){
-            i.transform.position = ((Party[0].transform.position.x - i.transform.position.x) * Horizontal >= 40) 
-            ? new Vector3(i.transform.position.x + 66 * Horizontal, 2.68f, 0): i.transform.position;
+            i.transform.position = ((Party[0].transform.position.x - i.transform.position.x) * Horizontal >= 44) 
+            ? new Vector3(i.transform.position.x + 69 * Horizontal, -2, 0): i.transform.position;
         if(Party[0].transform.position.x > 500){
             AreaPlus();}
         if(Party[0].transform.position.x < 0){
@@ -98,13 +98,14 @@ public class Overworld : MonoBehaviour{
     public void CountSteps(){
         if(Horizontal != 0 && Area != 1){
             Steps++;}
-        if(Steps % 10000 == 0){
+        if(Steps % 1000 == 0){
             Steps++;
             MoveOn = false;
             Party[0].transform.localScale = new Vector3(1,1,1);
             for(int i = 0; i < 3; i++){
                 Enemy[i].gameObject.SetActive(true);
                 Enemy[i].transform.position = Party[0].transform.position + new Vector3(6 + 3 * i, 0, 0);
+                Enemy[i].transform.localScale = new Vector3(-1, 1, 1);
                 Enemy[i].sprite = EnemySprite[i];
                 Enemy[i].name = EnemySprite[i].name;}
             BattleObj.BattleOn();}}}

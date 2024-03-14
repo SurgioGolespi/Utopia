@@ -25,6 +25,9 @@ public class Overworld : MonoBehaviour{
     public int Area;
     public Vector3 Position;
     public int Steps;
+    void Start(){
+        for(int i = 0; i < 3; i ++){
+            Party[i].sprite = PartySprite[MenuObj.PartyOrder[i]];}}
     void Update(){
         TouchScreen();
         CountSteps();
@@ -106,6 +109,5 @@ public class Overworld : MonoBehaviour{
                 Enemy[i].gameObject.SetActive(true);
                 Enemy[i].transform.position = Party[0].transform.position + new Vector3(6 + 3 * i, 0, 0);
                 Enemy[i].transform.localScale = new Vector3(-1, 1, 1);
-                Enemy[i].sprite = EnemySprite[i];
-                Enemy[i].name = EnemySprite[i].name;}
+                Enemy[i].sprite = EnemySprite[BattleObj.EnemyOrder[i]];}
             BattleObj.BattleOn();}}}

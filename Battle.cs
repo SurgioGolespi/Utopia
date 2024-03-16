@@ -45,7 +45,9 @@ public class Battle : MonoBehaviour{
         public int EN;
         public int[] AC;
         public int[] ST;
-        public Stats(int HealthPoints, int AttackPoints, string[] SkillNames, int ExperiencePoints, int Level, int ExperienceNeeded, int[] AttackCount, int[] StatusTypes){
+        public string ID;
+        public Stats(string Identifier, int HealthPoints, int AttackPoints, string[] SkillNames, int ExperiencePoints, int Level, int ExperienceNeeded, int[] AttackCount, int[] StatusTypes){
+            ID = Identifier;
             HP = HealthPoints;
             AP = AttackPoints;
             SN = SkillNames;
@@ -58,14 +60,14 @@ public class Battle : MonoBehaviour{
     public Stats[] EnemyStats;
     void Start(){
         PartyStats = new Stats[4];
-        PartyStats[0] = new Stats(100, 10, new string[]{"Dust to Dust","Seventh Day","Uncommited Sin"}, 0, 1, 100, new int[]{1,2,3}, new int[]{1,0,0});
-        PartyStats[1] = new Stats(100, 10, new string[]{"Party1","Party1","Party1"}, 0, 1, 100, new int[]{1,1,1}, new int[]{0,0,0});
-        PartyStats[2] = new Stats(100, 10, new string[]{"Party2","Party2","Party2"}, 0, 1, 100, new int[]{1,1,1}, new int[]{0,0,0});
-        PartyStats[3] = new Stats(100, 10, new string[]{"","",""}, 0, 1, 100, new int[]{1,1,1}, new int[]{0,0,0});
+        PartyStats[0] = new Stats("Party0", 100, 10, new string[]{"Dust to Dust","Seventh Day","Uncommited Sin"}, 0, 1, 100, new int[]{1,2,3}, new int[]{1,0,0});
+        PartyStats[1] = new Stats("Party1",100, 10, new string[]{"Party1","Party1","Party1"}, 0, 1, 100, new int[]{1,1,1}, new int[]{0,0,0});
+        PartyStats[2] = new Stats("Party2",100, 10, new string[]{"Party2","Party2","Party2"}, 0, 1, 100, new int[]{1,1,1}, new int[]{0,0,0});
+        PartyStats[3] = new Stats("Party3",100, 10, new string[]{"","",""}, 0, 1, 100, new int[]{1,1,1}, new int[]{0,0,0});
         EnemyStats = new Stats[3];
-        EnemyStats[0] = new Stats(100, 10, new string[]{"","",""}, 0, 1, 100, new int[]{1,1,1}, new int[]{0,0,0});
-        EnemyStats[1] = new Stats(100, 10, new string[]{"","",""}, 0, 1, 100, new int[]{1,1,1}, new int[]{0,0,0});
-        EnemyStats[2] = new Stats(100, 10, new string[]{"","",""}, 0, 1, 100, new int[]{1,1,1}, new int[]{0,0,0});
+        EnemyStats[0] = new Stats("Enemy0",100, 10, new string[]{"","",""}, 0, 1, 100, new int[]{1,1,1}, new int[]{0,0,0});
+        EnemyStats[1] = new Stats("Enemy1",100, 10, new string[]{"","",""}, 0, 1, 100, new int[]{1,1,1}, new int[]{0,0,0});
+        EnemyStats[2] = new Stats("Enemy2",100, 10, new string[]{"","",""}, 0, 1, 100, new int[]{1,1,1}, new int[]{0,0,0});
         PStatus = new Image[][] {
             P0Status, P1Status, P2Status};
         EStatus = new Image[][] {
@@ -97,7 +99,7 @@ public class Battle : MonoBehaviour{
             SkillOn = false;
             Skill = ActionIndex;
             for(int i = 0; i < 3; i++){
-                SkillText[i].text = OverworldObj.Enemy[i].name;}
+                SkillText[i].text = EnemyStats[EnemyOrder[i]].ID;}
             TargetOn = true;}
         else if(TargetOn && EnemyHP[ActionIndex] > 0){
             TargetOn = false;

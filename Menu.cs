@@ -24,8 +24,9 @@ public class Menu : MonoBehaviour{
     public Image[] PartyScrollContent;
     public Transform PullScroll;
     public Image[] PullScrollContent;
+    public AudioSource Soundtrack;
     [Header("Pull Variables")]
-    public int Prisms;
+    public int Apples;
     public string PullResult;
     public int PullIndex;
     public int PullAmount;
@@ -42,6 +43,11 @@ public class Menu : MonoBehaviour{
     public int OrderIndex;
     public int[] PartyOwned;
     public bool InParty;
+    [Header("Preset Variables")]
+    public float Volume;
+    public Slider VolumeBar;
+    public void Start(){
+        Soundtrack.volume = Volume;}
     public void Login(){
         LoginScreen.gameObject.SetActive(false);
         OverworldObj.MoveOn = true;}
@@ -50,9 +56,7 @@ public class Menu : MonoBehaviour{
         if(MenuScreen.transform.gameObject.activeSelf){
                 MenuButtonText.text = "Menu";
                 MenuScreen.gameObject.SetActive(false);
-                PartyScroll.gameObject.SetActive(false);
-                PullScroll.gameObject.SetActive(false);
-                AppText.text = "";
+                DisableMenuObjects();
                 OrderIndex = 0;
                 for(int i = 0; i < 3; i++){
                     NewPartyOrder[i] = -1;}
@@ -70,7 +74,6 @@ public class Menu : MonoBehaviour{
             i.gameObject.SetActive(false);}
         for(int i = 0; i < PartyOwned.Length; i++){
             PartyScrollContent[PartyOwned[i]].gameObject.SetActive(true);
-            PartyScrollContent[PartyOwned[i]].name = OverworldObj.PartySprite[PartyOwned[i]].name;
             PartyScrollContent[PartyOwned[i]].sprite = OverworldObj.PartySprite[PartyOwned[i]];}
         foreach(Transform i in App){
             i.gameObject.SetActive(false);}}
@@ -87,19 +90,26 @@ public class Menu : MonoBehaviour{
         foreach(Transform i in App){
             i.gameObject.SetActive(false);}
         AppText.text = "Reach the Black Tower";}
+    public void Preset(){
+        foreach(Transform i in App){
+            i.gameObject.SetActive(false);}
+        VolumeBar.gameObject.SetActive(true);}
+    public void VolumeChange(){
+        Volume = VolumeBar.value;
+        Soundtrack.volume = Volume;}
     IEnumerator PullRun(){
         if(PullOn){
             PullScroll.gameObject.SetActive(false);
             MenuButton.gameObject.SetActive(false);
             BackButton.gameObject.SetActive(false);
-            if(Prisms - PullAmount * 100 >= 0){
-                Prisms -= PullAmount * 100;
+            if(Apples - PullAmount * 100 >= 0){
+                Apples -= PullAmount * 100;
                 PullImage.gameObject.SetActive(true);
                 MenuScreen.color = Color.black;
                 for(int i = 0; i < PullAmount; i++){
                     PullIndex = UnityEngine.Random.Range(0,4);
                     AddParty(PullIndex);
-                    PullResult += OverworldObj.PartySprite[PullIndex].name + " ";
+                    PullResult += BattleObj.PartyStats[PullIndex].ID + " ";
                     PullImage.sprite = OverworldObj.PartySprite[PullIndex];
                     yield return new WaitForSeconds(0.5f);
                     yield return new WaitUntil(() => Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began);}
@@ -109,7 +119,7 @@ public class Menu : MonoBehaviour{
                 AppText.text = PullResult;
                 PullResult = "";}
             else{
-                AppText.text = "Not Enough Prisms";}
+                AppText.text = "Not Enough Apples";}
             yield return new WaitForSeconds(0.5f);
             yield return new WaitUntil(() => Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began);
             AppText.text = "";
@@ -144,8 +154,7 @@ public class Menu : MonoBehaviour{
         else if(PullOn){
             PullOn = false;}
         else if(!App[0].gameObject.activeSelf){
-            PartyScroll.gameObject.SetActive(false);
-            PullScroll.gameObject.SetActive(false);
+            DisableMenuObjects();
             foreach(Transform i in App){
                 i.gameObject.SetActive(true);}}
         else{
@@ -153,7 +162,7 @@ public class Menu : MonoBehaviour{
     public void PartyRun(int PSCIndex){
         if(StatsOn){
             PartyScroll.gameObject.SetActive(false);
-            AppText.text = OverworldObj.PartySprite[PartyOwned[PSCIndex]].name + "\n" +
+            AppText.text = BattleObj.PartyStats[PartyOwned[PSCIndex]].ID + "\n" +
             "LV: " + BattleObj.PartyStats[PartyOwned[PSCIndex]].LV + "\n" +
             "EP Needed until next LV: " + BattleObj.PartyStats[PartyOwned[PSCIndex]].EP + "/" +  BattleObj.PartyStats[PartyOwned[PSCIndex]].EN + "\n" +
             "HP: " + BattleObj.PartyStats[PartyOwned[PSCIndex]].HP + "\n" +
@@ -164,8 +173,7 @@ public class Menu : MonoBehaviour{
             if(OrderIndex == 3){
                 for(int i = 0; i < 3; i++){
                     PartyOrder[i] = NewPartyOrder[i];
-                    OverworldObj.Party[i].sprite = OverworldObj.PartySprite[NewPartyOrder[i]];
-                    OverworldObj.Party[i].name = OverworldObj.PartySprite[NewPartyOrder[i]].name;}
+                    OverworldObj.Party[i].sprite = OverworldObj.PartySprite[NewPartyOrder[i]];}
                 OrderIndex = 0;
                 MenuBack();}}}
     public void StatsRun(){
@@ -186,4 +194,9 @@ public class Menu : MonoBehaviour{
         if(!InParty){
             Array.Resize(ref PartyOwned, PartyOwned.Length + 1);
             PartyOwned[PartyOwned.Length - 1] = APIndex;}
-        InParty = false;}};
+        InParty = false;}
+    public void DisableMenuObjects(){
+        AppText.text = "";
+        VolumeBar.gameObject.SetActive(false);
+        PartyScroll.gameObject.SetActive(false);
+        PullScroll.gameObject.SetActive(false);}};

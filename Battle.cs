@@ -24,7 +24,8 @@ public class Battle : MonoBehaviour{
     public Image[] E2Status;
     public Image[][] PStatus;
     public Image[][] EStatus;
-
+    [Header("Battle Animations")]
+    public Sprite[] PAttackSprite;
     [Header("Battle Variables")]
     public int TurnCount;
     public int[] PartyHP;
@@ -46,7 +47,9 @@ public class Battle : MonoBehaviour{
         public int[] AC;
         public int[] ST;
         public string ID;
-        public Stats(string Identifier, int HealthPoints, int AttackPoints, string[] SkillNames, int ExperiencePoints, int Level, int ExperienceNeeded, int[] AttackCount, int[] StatusTypes){
+        public int PC;
+        public Stats(string Identifier, int HealthPoints, int AttackPoints, string[] SkillNames, int ExperiencePoints, 
+        int Level, int ExperienceNeeded, int[] AttackCount, int[] StatusTypes, int PrizeCount){
             ID = Identifier;
             HP = HealthPoints;
             AP = AttackPoints;
@@ -55,19 +58,20 @@ public class Battle : MonoBehaviour{
             LV = Level;
             EN = ExperienceNeeded;
             AC = AttackCount;
-            ST = StatusTypes;}}
+            ST = StatusTypes;
+            PC = PrizeCount;}}
     public Stats[] PartyStats;
     public Stats[] EnemyStats;
     void Start(){
         PartyStats = new Stats[4];
-        PartyStats[0] = new Stats("Party0", 100, 10, new string[]{"Dust to Dust","Seventh Day","Uncommited Sin"}, 0, 1, 100, new int[]{1,2,3}, new int[]{1,0,0});
-        PartyStats[1] = new Stats("Party1",100, 10, new string[]{"Party1","Party1","Party1"}, 0, 1, 100, new int[]{1,1,1}, new int[]{0,0,0});
-        PartyStats[2] = new Stats("Party2",100, 10, new string[]{"Party2","Party2","Party2"}, 0, 1, 100, new int[]{1,1,1}, new int[]{0,0,0});
-        PartyStats[3] = new Stats("Party3",100, 10, new string[]{"","",""}, 0, 1, 100, new int[]{1,1,1}, new int[]{0,0,0});
+        PartyStats[0] = new Stats("Party0", 100, 10, new string[]{"Dust to Dust","Seventh Day","Uncommited Sin"}, 0, 1, 100, new int[]{1,2,3}, new int[]{1,0,0}, 0);
+        PartyStats[1] = new Stats("Party1", 100, 10, new string[]{"Party1","Party1","Party1"}, 0, 1, 100, new int[]{1,1,1}, new int[]{0,0,0}, 0);
+        PartyStats[2] = new Stats("Party2", 100, 10, new string[]{"Party2","Party2","Party2"}, 0, 1, 100, new int[]{1,1,1}, new int[]{0,0,0}, 0);
+        PartyStats[3] = new Stats("Party3", 100, 10, new string[]{"","",""}, 0, 1, 100, new int[]{1,1,1}, new int[]{0,0,0}, 0);
         EnemyStats = new Stats[3];
-        EnemyStats[0] = new Stats("Enemy0",100, 10, new string[]{"","",""}, 0, 1, 100, new int[]{1,1,1}, new int[]{0,0,0});
-        EnemyStats[1] = new Stats("Enemy1",100, 10, new string[]{"","",""}, 0, 1, 100, new int[]{1,1,1}, new int[]{0,0,0});
-        EnemyStats[2] = new Stats("Enemy2",100, 10, new string[]{"","",""}, 0, 1, 100, new int[]{1,1,1}, new int[]{0,0,0});
+        EnemyStats[0] = new Stats("Enemy0", 100, 10, new string[]{"","",""}, 0, 1, 100, new int[]{1,1,1}, new int[]{0,0,0}, 0);
+        EnemyStats[1] = new Stats("Enemy1", 100, 10, new string[]{"","",""}, 0, 1, 100, new int[]{1,1,1}, new int[]{0,0,0}, 0);
+        EnemyStats[2] = new Stats("Enemy2", 100, 10, new string[]{"","",""}, 0, 1, 100, new int[]{1,1,1}, new int[]{0,0,0}, 0);
         PStatus = new Image[][] {
             P0Status, P1Status, P2Status};
         EStatus = new Image[][] {
@@ -89,6 +93,7 @@ public class Battle : MonoBehaviour{
         for(int i = 0; i < 3; i++){
             PartyHP[i] = PartyStats[MenuObj.PartyOrder[i]].HP;
             EnemyHP[i] = EnemyStats[i].HP;
+            PHPFill[i].fillAmount = 1;
             EHPFill[i].fillAmount = 1;
             for(int j = 0; j < 1; j++){
                 PStatus[i][j].gameObject.SetActive(false);
@@ -103,7 +108,7 @@ public class Battle : MonoBehaviour{
             TargetOn = true;}
         else if(TargetOn && EnemyHP[ActionIndex] > 0){
             TargetOn = false;
-            TurnCount += 1;
+            TurnCount++;
             for(int i = 0; i < 3; i++){
                     SkillText[i].text = PartyStats[MenuObj.PartyOrder[TurnCount % 3]].SN[i];}
             if(TurnCount > 0){
@@ -111,17 +116,21 @@ public class Battle : MonoBehaviour{
             else{
                 SkillOn = true;}}}
     IEnumerator PartyAttack(int PartyTarget){
+        OverworldObj.Party[(TurnCount + 2) % 3].sprite = PAttackSprite[MenuObj.PartyOrder[(TurnCount + 2) % 3]];
         for(int i = 0; i < PartyStats[MenuObj.PartyOrder[(TurnCount + 2) % 3]].AC[Skill]; i++){
             Damage = PApplyStatus(PartyStats[MenuObj.PartyOrder[(TurnCount + 2)% 3]].AP, PartyTarget);
             EnemyHP[PartyTarget] -= Damage;
             EHPFill[PartyTarget].fillAmount = (float)EnemyHP[PartyTarget]/(float)EnemyStats[PartyTarget].HP;
             EDamageText[PartyTarget].text = Damage.ToString();
             yield return new WaitForSeconds(0.5f);
+            OverworldObj.Party[(TurnCount + 2) % 3].sprite = OverworldObj.PartySprite[MenuObj.PartyOrder[(TurnCount + 2) % 3]];
             EDamageText[PartyTarget].text = "";}
         if(EnemyHP[PartyTarget] <= 0){
-                OverworldObj.Enemy[PartyTarget].sprite = null;}
+                OverworldObj.Enemy[PartyTarget].sprite = null;
+                foreach(Image Status in EStatus[PartyTarget]){
+                    Status.gameObject.SetActive(false);}}
         if(EnemyHP.All(num => num <= 0)){
-                    BattleOff();}
+                BattleOff();}
         else if(TurnCount % 3 == 0){
             StartCoroutine(EnemyAttack());}
         else{
@@ -152,7 +161,6 @@ public class Battle : MonoBehaviour{
                 int EnemyTarget = Random.Range(0,3);
                 Damage = EnemyStats[i].AP;
                 PartyHP[EnemyTarget] -= Damage;
-                PHPFill[EnemyTarget].rectTransform.sizeDelta = new Vector2(400 * (float)PartyHP[EnemyTarget]/(float)PartyStats[MenuObj.PartyOrder[EnemyTarget]].HP, 25);
                 PDamageText[EnemyTarget].text = Damage.ToString();
                 yield return new WaitForSeconds(0.5f);
                 PDamageText[EnemyTarget].text = "";}}

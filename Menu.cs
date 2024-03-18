@@ -25,6 +25,7 @@ public class Menu : MonoBehaviour{
     public Transform PullScroll;
     public Image[] PullScrollContent;
     public AudioSource Soundtrack;
+    public TextMeshProUGUI AppleCountText;
     [Header("Pull Variables")]
     public int Apples;
     public string PullResult;
@@ -81,8 +82,7 @@ public class Menu : MonoBehaviour{
         foreach(Transform i in App){
             i.gameObject.SetActive(false);}
         PullScroll.gameObject.SetActive(true);
-        foreach(Image i in PullScrollContent){
-            i.gameObject.SetActive(false);}
+        AppleCountText.text = "Apples: " + Apples;
         for(int i = 0; i < BannerSprite.Length; i++){
             PullScrollContent[i].gameObject.SetActive(true);
             PullScrollContent[i].sprite = BannerSprite[i];}}

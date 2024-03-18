@@ -15,8 +15,11 @@ public class Overworld : MonoBehaviour{
     public Sprite[] EnemySprite;
     public Sprite[] ForegroundSprite;
     public Sprite[] BuildSprite;
+    public Sprite[] NPCSprite;
     public Sprite[] InsideSprite;
+    public Sprite ExitIcon;
     public Camera MainCam;
+    public GameObject[] AreaSprite;
     [Header("Move Variables")]
     public float Horizontal;
     public float Vertical;
@@ -60,48 +63,51 @@ public class Overworld : MonoBehaviour{
         else{
             Horizontal = 0;
             Vertical = 0;}
-        GoInside();}
+        if(Area == 1 && Mathf.Abs(Party[0].transform.position.x - Build[0].transform.position.x) <= 2){
+            GoInside();}}
     public void AreaPlus(){
          if(Area == 1){
-            Build[0].sprite = null;
-            NPC[0].sprite = null;}
+            AreaSprite[0].SetActive(false);}
         Area = (Area + 1) % 3;
         Party[0].transform.position = new Vector3(0,0,0);
         foreach(SpriteRenderer i in Foreground){
             i.transform.position += new Vector3(-500,0,0);
             i.sprite = ForegroundSprite[Area];}
         if(Area == 1){
+            AreaSprite[0].SetActive(true);
             Build[0].sprite = BuildSprite[0];
-            NPC[0].sprite = PartySprite[1];}}
+            NPC[0].sprite = NPCSprite[0];}}
     public void AreaMinus(){
         if(Area == 1){
-            Build[0].sprite = null;
-            NPC[0].sprite = null;}
+            AreaSprite[0].SetActive(false);}
         Area = (Area + 2) % 3;
         Party[0].transform.position = new Vector3(500,0,0);
         foreach(SpriteRenderer i in Foreground){
             i.transform.position += new Vector3(500,0,0);
             i.sprite = ForegroundSprite[Area];}
         if(Area == 1){
+            AreaSprite[0].SetActive(true);
             Build[0].sprite = BuildSprite[0];
-            NPC[0].sprite = PartySprite[1];}}
+            NPC[0].sprite = NPCSprite[0];}}
     public void GoInside(){
-        if(Area == 1 && Vector3.Distance(Party[0].transform.position, Build[0].transform.position) <= 2){
-            if(Vertical == 1){
-                InsideOn = true;
-                NPC[0].sprite = null;
-                Build[0].sprite = null;
-                foreach(SpriteRenderer i in Foreground){
-                    i.sprite = InsideSprite[0];}}
-            else if(Vertical == -1){
-                InsideOn = false;
-                NPC[0].sprite = PartySprite[1];
-                Build[0].sprite = BuildSprite[0];
-                foreach(SpriteRenderer i in Foreground){
-                    i.sprite = ForegroundSprite[Area];}}}}
+        if(Vertical == 1){
+            InsideOn = true;
+            NPC[0].sprite = null;
+            Build[0].sprite = ExitIcon;
+            Build[0].transform.position = new Vector3(Build[0].transform.position.x, 2, 0);
+            foreach(SpriteRenderer i in Foreground){
+                i.sprite = InsideSprite[0];}}
+        else if(Vertical == -1){
+            InsideOn = false;
+            NPC[0].sprite = PartySprite[1];
+            Build[0].sprite = BuildSprite[0];
+            Build[0].transform.position = new Vector3(Build[0].transform.position.x, 0, 0);
+           foreach(SpriteRenderer i in Foreground){
+                i.sprite = ForegroundSprite[Area];}}}
     public void CountSteps(){
-        Steps += Vector3.Distance(Position, Party[0].transform.position);
-        Position = Party[0].transform.position;
+        if(Area != 1){
+            Steps += Vector3.Distance(Position, Party[0].transform.position);
+            Position = Party[0].transform.position;}
         if((int)Steps % 250 == 0){
             Steps++;
             MoveOn = false;

@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using System.IO;
 using System;
+using System.Linq;
 public class Menu : MonoBehaviour{
     [Header("Script Objects")]
     public Overworld OverworldObj;
@@ -24,7 +25,6 @@ public class Menu : MonoBehaviour{
     public Image[] PartyScrollContent;
     public Transform PullScroll;
     public Image[] PullScrollContent;
-    public AudioSource Soundtrack;
     public TextMeshProUGUI AppleCountText;
     [Header("Pull Variables")]
     public int Apples;
@@ -44,11 +44,8 @@ public class Menu : MonoBehaviour{
     public int OrderIndex;
     public int[] PartyOwned;
     public bool InParty;
-    [Header("Preset Variables")]
-    public float Volume;
-    public Slider VolumeBar;
-    public void Start(){
-        Soundtrack.volume = Volume;}
+    [Header("Portal Variables")]
+    public GameObject Map;
     public void Login(){
         LoginScreen.gameObject.SetActive(false);
         OverworldObj.MoveOn = true;}
@@ -71,14 +68,12 @@ public class Menu : MonoBehaviour{
             MenuScreen.transform.gameObject.SetActive(true);}}
     public void Party(){
         PartyScroll.gameObject.SetActive(true);
-        foreach(Image i in PartyScrollContent){
-            i.gameObject.SetActive(false);}
         for(int i = 0; i < PartyOwned.Length; i++){
             PartyScrollContent[PartyOwned[i]].gameObject.SetActive(true);
             PartyScrollContent[PartyOwned[i]].sprite = OverworldObj.PartySprite[PartyOwned[i]];}
         foreach(Transform i in App){
             i.gameObject.SetActive(false);}}
-     public void Pull(){
+    public void Pull(){
         foreach(Transform i in App){
             i.gameObject.SetActive(false);}
         PullScroll.gameObject.SetActive(true);
@@ -86,17 +81,16 @@ public class Menu : MonoBehaviour{
         for(int i = 0; i < BannerSprite.Length; i++){
             PullScrollContent[i].gameObject.SetActive(true);
             PullScrollContent[i].sprite = BannerSprite[i];}}
-    public void PathRun(){
+    public void Story(){
         foreach(Transform i in App){
             i.gameObject.SetActive(false);}
         AppText.text = "Reach the Black Tower";}
-    public void Preset(){
+    public void Portal(){
         foreach(Transform i in App){
             i.gameObject.SetActive(false);}
-        VolumeBar.gameObject.SetActive(true);}
-    public void VolumeChange(){
-        Volume = VolumeBar.value;
-        Soundtrack.volume = Volume;}
+        Map.SetActive(true);}
+    public void Prism(){}
+    public void Prizes(){}
     IEnumerator PullRun(){
         if(PullOn){
             PullScroll.gameObject.SetActive(false);
@@ -107,7 +101,7 @@ public class Menu : MonoBehaviour{
                 PullImage.gameObject.SetActive(true);
                 MenuScreen.color = Color.black;
                 for(int i = 0; i < PullAmount; i++){
-                    PullIndex = UnityEngine.Random.Range(0,4);
+                    PullIndex = UnityEngine.Random.Range(0, OverworldObj.PartySprite.Length);
                     AddParty(PullIndex);
                     PullResult += BattleObj.PartyStats[PullIndex].ID + " ";
                     PullImage.sprite = OverworldObj.PartySprite[PullIndex];
@@ -126,7 +120,7 @@ public class Menu : MonoBehaviour{
             PullOn = false;
             BackButton.gameObject.SetActive(true);
             MenuButton.gameObject.SetActive(true);
-            PullScroll.gameObject.SetActive(true);}}
+            Pull();}}
     public void DialogueRun(){
         if(DialogueText.text == ""){
             DialogueIndex = 0;
@@ -188,15 +182,21 @@ public class Menu : MonoBehaviour{
     public void StartPull(){
         StartCoroutine(PullRun());}
     public void AddParty(int APIndex){
-        foreach(int i in PartyOwned){
-            if(i == APIndex){
-                InParty = true;}}
-        if(!InParty){
+        if(!PartyOwned.Any(n => n == APIndex)){
             Array.Resize(ref PartyOwned, PartyOwned.Length + 1);
             PartyOwned[PartyOwned.Length - 1] = APIndex;}
+        else{
+            Apples += 10;}
         InParty = false;}
+    public void PortalRun(int NewArea){
+        OverworldObj.Party[0].transform.position =  new Vector3(0,0,0);
+        if(OverworldObj.Area == (NewArea + 2) % 3){
+            OverworldObj.AreaChange(1);}
+        else if(OverworldObj.Area == (NewArea + 1) % 3){
+            OverworldObj.AreaChange(-1);}
+        MenuOn();}
     public void DisableMenuObjects(){
         AppText.text = "";
-        VolumeBar.gameObject.SetActive(false);
+        Map.SetActive(false);
         PartyScroll.gameObject.SetActive(false);
         PullScroll.gameObject.SetActive(false);}};

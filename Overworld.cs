@@ -46,10 +46,9 @@ public class Overworld : MonoBehaviour{
         foreach(SpriteRenderer i in Foreground){
             i.transform.position = ((Party[0].transform.position.x - i.transform.position.x) * Horizontal >= 44) 
             ? new Vector3(i.transform.position.x + 69 * Horizontal, 0, 0): i.transform.position;
-        if(Party[0].transform.position.x > 500){
-            AreaPlus();}
-        if(Party[0].transform.position.x < 0){
-            AreaMinus();}}}
+        if((Party[0].transform.position.x > 500 || Party[0].transform.position.x < 0) && Horizontal != 0){
+            Party[0].transform.position = new Vector3(0 - (250 * (Party[0].transform.localScale.x - 1)),0,0);
+            AreaChange(Party[0].transform.localScale.x);}}}
     public void TouchScreen(){
         if(Input.touchCount > 0 && MoveOn){
             if(Input.GetTouch(0).phase == TouchPhase.Moved){
@@ -65,26 +64,13 @@ public class Overworld : MonoBehaviour{
             Vertical = 0;}
         if(Area == 1 && Mathf.Abs(Party[0].transform.position.x - Build[0].transform.position.x) <= 2){
             GoInside();}}
-    public void AreaPlus(){
-         if(Area == 1){
-            AreaSprite[0].SetActive(false);}
-        Area = (Area + 1) % 3;
-        Party[0].transform.position = new Vector3(0,0,0);
-        foreach(SpriteRenderer i in Foreground){
-            i.transform.position += new Vector3(-500,0,0);
-            i.sprite = ForegroundSprite[Area];}
-        if(Area == 1){
-            AreaSprite[0].SetActive(true);
-            Build[0].sprite = BuildSprite[0];
-            NPC[0].sprite = NPCSprite[0];}}
-    public void AreaMinus(){
+    public void AreaChange(float Direction){
         if(Area == 1){
             AreaSprite[0].SetActive(false);}
-        Area = (Area + 2) % 3;
-        Party[0].transform.position = new Vector3(500,0,0);
-        foreach(SpriteRenderer i in Foreground){
-            i.transform.position += new Vector3(500,0,0);
-            i.sprite = ForegroundSprite[Area];}
+        Area = (Direction == 1) ? (Area + 1) % 3 : (Area + 2) % 3;
+        for(int i = 0; i < 3; i++){
+            Foreground[i].transform.position = new Vector3(Party[0].transform.position.x - 20 + 23 * i,0,0);
+            Foreground[i].sprite = ForegroundSprite[Area];}
         if(Area == 1){
             AreaSprite[0].SetActive(true);
             Build[0].sprite = BuildSprite[0];
@@ -106,7 +92,7 @@ public class Overworld : MonoBehaviour{
                 i.sprite = ForegroundSprite[Area];}}}
     public void CountSteps(){
         if(Area != 1){
-            Steps += Vector3.Distance(Position, Party[0].transform.position);
+            Steps += (Vector3.Distance(Position, Party[0].transform.position) < 1) ? Vector3.Distance(Position, Party[0].transform.position) : 0;
             Position = Party[0].transform.position;}
         if((int)Steps % 250 == 0){
             Steps++;

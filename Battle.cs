@@ -26,7 +26,9 @@ public class Battle : MonoBehaviour{
     public Image[][] EStatus;
     [Header("Battle Animations")]
     public Sprite[] PAttackSprite;
+    public Sprite[] EAttackSprite;
     [Header("Battle Variables")]
+    public int AttackCount;
     public int TurnCount;
     public int[] PartyHP;
     public int[] EnemyHP;
@@ -64,17 +66,17 @@ public class Battle : MonoBehaviour{
     public Stats[] EnemyStats;
     void Start(){
         PartyStats = new Stats[4];
-        PartyStats[0] = new Stats("Party0", 100, 10, new string[]{"Dust to Dust","Seventh Day","Uncommited Sin"}, 0, 1, 100, new int[]{1,2,3}, new int[]{1,0,0}, 0);
-        PartyStats[1] = new Stats("Party1", 100, 10, new string[]{"Party1","Party1","Party1"}, 0, 1, 100, new int[]{1,1,1}, new int[]{0,0,0}, 0);
-        PartyStats[2] = new Stats("Party2", 100, 10, new string[]{"Party2","Party2","Party2"}, 0, 1, 100, new int[]{1,1,1}, new int[]{0,0,0}, 0);
+        PartyStats[0] = new Stats("Party0", 100, 10, new string[]{"Return to Dust","Temptation","Uncommited Sin"}, 0, 1, 100, new int[]{1,2,3}, new int[]{1,0,0}, 0);
+        PartyStats[1] = new Stats("Party1", 100, 10, new string[]{"Firewall","Overheat","Redirect Output"}, 0, 1, 100, new int[]{1,1,1}, new int[]{0,0,0}, 0);
+        PartyStats[2] = new Stats("Party2", 100, 10, new string[]{"Envelop","Encroach","Encircle"}, 0, 1, 100, new int[]{1,1,1}, new int[]{0,0,0}, 0);
         PartyStats[3] = new Stats("Party3", 100, 10, new string[]{"","",""}, 0, 1, 100, new int[]{1,1,1}, new int[]{0,0,0}, 0);
         EnemyStats = new Stats[3];
-        EnemyStats[0] = new Stats("Enemy0", 100, 10, new string[]{"","",""}, 0, 1, 100, new int[]{1,1,1}, new int[]{0,0,0}, 0);
+        EnemyStats[0] = new Stats("Enemy0", 100, 10, new string[]{"","",""}, 0, 1, 100, new int[]{1,1,1}, new int[]{1,0,0}, 0);
         EnemyStats[1] = new Stats("Enemy1", 100, 10, new string[]{"","",""}, 0, 1, 100, new int[]{1,1,1}, new int[]{0,0,0}, 0);
         EnemyStats[2] = new Stats("Enemy2", 100, 10, new string[]{"","",""}, 0, 1, 100, new int[]{1,1,1}, new int[]{0,0,0}, 0);
-        PStatus = new Image[][] {
+        PStatus = new Image[][]{
             P0Status, P1Status, P2Status};
-        EStatus = new Image[][] {
+        EStatus = new Image[][]{
             E0Status, E1Status, E2Status};}
     IEnumerator EPGain(){
         for(int i = 0; i < 3; i++){
@@ -88,6 +90,7 @@ public class Battle : MonoBehaviour{
                 yield return new WaitForSeconds(0.5f);
                 PDamageText[i].text = "";}}}
     public void BattleOn(){
+        TurnCount = 0;
         BattleScreen.SetActive(true);
         MenuObj.MenuButton.gameObject.SetActive(false);
         for(int i = 0; i < 3; i++){
@@ -108,22 +111,22 @@ public class Battle : MonoBehaviour{
             TargetOn = true;}
         else if(TargetOn && EnemyHP[ActionIndex] > 0){
             TargetOn = false;
-            TurnCount++;
+            AttackCount++;
             for(int i = 0; i < 3; i++){
-                    SkillText[i].text = PartyStats[MenuObj.PartyOrder[TurnCount % 3]].SN[i];}
-            if(TurnCount > 0){
+                    SkillText[i].text = PartyStats[MenuObj.PartyOrder[AttackCount % 3]].SN[i];}
+            if(AttackCount > 0){
                 StartCoroutine(PartyAttack(ActionIndex));}
             else{
                 SkillOn = true;}}}
     IEnumerator PartyAttack(int PartyTarget){
-        OverworldObj.Party[(TurnCount + 2) % 3].sprite = PAttackSprite[MenuObj.PartyOrder[(TurnCount + 2) % 3]];
-        for(int i = 0; i < PartyStats[MenuObj.PartyOrder[(TurnCount + 2) % 3]].AC[Skill]; i++){
-            Damage = PApplyStatus(PartyStats[MenuObj.PartyOrder[(TurnCount + 2)% 3]].AP, PartyTarget);
+        OverworldObj.Party[(AttackCount + 2) % 3].sprite = PAttackSprite[MenuObj.PartyOrder[(AttackCount + 2) % 3]];
+        for(int i = 0; i < PartyStats[MenuObj.PartyOrder[(AttackCount + 2) % 3]].AC[Skill]; i++){
+            Damage = PApplyStatus(PartyStats[MenuObj.PartyOrder[(AttackCount + 2)% 3]].AP, PartyTarget);
             EnemyHP[PartyTarget] -= Damage;
             EHPFill[PartyTarget].fillAmount = (float)EnemyHP[PartyTarget]/(float)EnemyStats[PartyTarget].HP;
             EDamageText[PartyTarget].text = Damage.ToString();
             yield return new WaitForSeconds(0.5f);
-            OverworldObj.Party[(TurnCount + 2) % 3].sprite = OverworldObj.PartySprite[MenuObj.PartyOrder[(TurnCount + 2) % 3]];
+            OverworldObj.Party[(AttackCount + 2) % 3].sprite = OverworldObj.PartySprite[MenuObj.PartyOrder[(AttackCount + 2) % 3]];
             EDamageText[PartyTarget].text = "";}
         if(EnemyHP[PartyTarget] <= 0){
                 OverworldObj.Enemy[PartyTarget].sprite = null;
@@ -131,7 +134,7 @@ public class Battle : MonoBehaviour{
                     Status.gameObject.SetActive(false);}}
         if(EnemyHP.All(num => num <= 0)){
                 BattleOff();}
-        else if(TurnCount % 3 == 0){
+        else if(AttackCount % 3 == 0){
             StartCoroutine(EnemyAttack());}
         else{
              SkillOn = true;}}
@@ -140,7 +143,7 @@ public class Battle : MonoBehaviour{
             Damage *= 2;
             EStatus[PartyTarget][0].gameObject.SetActive(false);
             EnemyStatus[PartyTarget, 0] -= 1;}
-        if(PartyStats[MenuObj.PartyOrder[(TurnCount + 2) % 3]].ST[Skill] == 1){
+        if(PartyStats[MenuObj.PartyOrder[(AttackCount + 2) % 3]].ST[Skill] == 1){
             EStatus[PartyTarget][0].gameObject.SetActive(true);
             EStatus[PartyTarget][0].sprite = StatusIcon[0];
             EnemyStatus[PartyTarget, 0] += 1;}
@@ -150,7 +153,7 @@ public class Battle : MonoBehaviour{
             Damage *= 2;
             PStatus[EnemyTarget][0].gameObject.SetActive(false);
             PartyStatus[EnemyTarget, 0] -= 1;}
-        if(EnemyStats[EnemyOrder[EnemyIndex]].ST[Skill] == 1){
+        if(EnemyStats[EnemyOrder[EnemyIndex]].ST[TurnCount % 3] == 1){
             PStatus[EnemyTarget][0].gameObject.SetActive(true);
             PStatus[EnemyTarget][0].sprite = StatusIcon[0];
             PartyStatus[EnemyTarget, 0] += 1;}
@@ -158,16 +161,20 @@ public class Battle : MonoBehaviour{
     IEnumerator EnemyAttack(){
         for(int i = 0; i < 3; i++){
             if(EnemyHP[i] > 0){
+                OverworldObj.Enemy[i].sprite = EAttackSprite[EnemyOrder[i]];
                 int EnemyTarget = Random.Range(0,3);
-                Damage = EnemyStats[i].AP;
+                Damage = EApplyStatus(EnemyStats[i].AP, EnemyTarget, i);
                 PartyHP[EnemyTarget] -= Damage;
+                PHPFill[EnemyTarget].fillAmount = (float)PartyHP[EnemyTarget]/(float)EnemyStats[MenuObj.PartyOrder[EnemyTarget]].HP;
                 PDamageText[EnemyTarget].text = Damage.ToString();
                 yield return new WaitForSeconds(0.5f);
+                OverworldObj.Enemy[i].sprite = OverworldObj.EnemySprite[EnemyOrder[i]];
                 PDamageText[EnemyTarget].text = "";}}
-        SkillOn = true;}
+        SkillOn = true;
+        TurnCount += 1;}
     public void BattleOff(){
         BattleScreen.SetActive(false);
-        TurnCount = -1;
+        AttackCount = -1;
         Damage = 0;
         TargetOn = true;
         OverworldObj.MoveOn = true;

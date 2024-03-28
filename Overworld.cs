@@ -22,7 +22,6 @@ public class Overworld : MonoBehaviour{
     public GameObject[] AreaSprite;
     [Header("Move Variables")]
     public float Horizontal;
-    public float Vertical;
     public bool MoveOn;
     public bool InsideOn;
     public int Area;
@@ -35,35 +34,32 @@ public class Overworld : MonoBehaviour{
     void Update(){
         TouchScreen();
         CountSteps();
-        Party[0].transform.Translate(Horizontal * Time.deltaTime * 10, 0, 0);
-        if(InsideOn){
-            Party[0].transform.position = new Vector3(Mathf.Clamp(Party[0].transform.position.x, 0, 500), 0, 0);}
-        Party[1].transform.position = Party[0].transform.position + new Vector3(-3 * Party[0].transform.localScale.x, 0, 0);
-        Party[2].transform.position = Party[0].transform.position + new Vector3(-6 * Party[0].transform.localScale.x, 0, 0);
-        Party[1].transform.localScale = new Vector3(Party[0].transform.localScale.x, 1, 1);
-        Party[2].transform.localScale = new Vector3(Party[0].transform.localScale.x, 1, 1);
+        Party[0].transform.Translate(Horizontal * Time.deltaTime * 20, 0, 0);
         MainCam.transform.position = Party[0].transform.position + new Vector3(3, 2.2f, -10);
+        for(int i = 1; i < 3; i++){
+            Party[i].transform.position = Party[0].transform.position + new Vector3(-3 * i * Party[0].transform.localScale.x, 0, 0);
+            Party[i].transform.localScale = new Vector3(Party[0].transform.localScale.x, 1, 1);}
         foreach(SpriteRenderer i in Foreground){
             i.transform.position = ((Party[0].transform.position.x - i.transform.position.x) * Horizontal >= 44) 
-            ? new Vector3(i.transform.position.x + 69 * Horizontal, 0, 0): i.transform.position;
+            ? new Vector3(i.transform.position.x + 69 * Horizontal, 0, 0): i.transform.position;}
         if((Party[0].transform.position.x > 500 || Party[0].transform.position.x < 0) && Horizontal != 0){
             Party[0].transform.position = new Vector3(0 - (250 * (Party[0].transform.localScale.x - 1)),0,0);
-            AreaChange(Party[0].transform.localScale.x);}}}
+            if(!InsideOn){
+                AreaChange(Party[0].transform.localScale.x);}}}
     public void TouchScreen(){
         if(Input.touchCount > 0 && MoveOn){
             if(Input.GetTouch(0).phase == TouchPhase.Moved){
-                Horizontal = (Mathf.Abs(Input.GetTouch(0).deltaPosition.x) > 7.5f) ? Mathf.Sign(Input.GetTouch(0).deltaPosition.x) : Horizontal;
-                Vertical = (Mathf.Abs(Input.GetTouch(0).deltaPosition.y) > 7.5f) ? Mathf.Sign(Input.GetTouch(0).deltaPosition.y) : 0;}
+                Horizontal = (Mathf.Abs(Input.GetTouch(0).deltaPosition.x) > 7.5f) ? Mathf.Sign(Input.GetTouch(0).deltaPosition.x) : Horizontal;}
             Party[0].transform.localScale = (Horizontal != 0) ? new Vector3(Horizontal, 1, 1) : new Vector3(Party[0].transform.localScale.x, 1, 1);
-            if(Input.GetTouch(0).phase == TouchPhase.Began && NPC[0].sprite != null){
+            if(Input.GetTouch(0).phase == TouchPhase.Began){
                 if(Vector3.Distance(Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, 10)), 
-                NPC[0].transform.position) < 1){
-                    MenuObj.DialogueRun();}}}
+                NPC[0].transform.position) < 1 && NPC[0].sprite != null && MenuObj.DialogueText.text == ""){
+                    StartCoroutine(MenuObj.DialogueRun());}
+                if(Vector3.Distance(Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, 10)), 
+                Build[0].transform.position) < 2 && Build[0].sprite != null){
+                    StartCoroutine(GoInside());}}}
         else{
-            Horizontal = 0;
-            Vertical = 0;}
-        if(Area == 1 && Mathf.Abs(Party[0].transform.position.x - Build[0].transform.position.x) <= 2){
-            GoInside();}}
+            Horizontal = 0;}}
     public void AreaChange(float Direction){
         if(Area == 1){
             AreaSprite[0].SetActive(false);}
@@ -75,21 +71,14 @@ public class Overworld : MonoBehaviour{
             AreaSprite[0].SetActive(true);
             Build[0].sprite = BuildSprite[0];
             NPC[0].sprite = NPCSprite[0];}}
-    public void GoInside(){
-        if(Vertical == 1){
-            InsideOn = true;
-            NPC[0].sprite = null;
-            Build[0].sprite = ExitIcon;
-            Build[0].transform.position = new Vector3(Build[0].transform.position.x, 2, 0);
-            foreach(SpriteRenderer i in Foreground){
-                i.sprite = InsideSprite[0];}}
-        else if(Vertical == -1){
-            InsideOn = false;
-            NPC[0].sprite = PartySprite[1];
-            Build[0].sprite = BuildSprite[0];
-            Build[0].transform.position = new Vector3(Build[0].transform.position.x, 0, 0);
-           foreach(SpriteRenderer i in Foreground){
-                i.sprite = ForegroundSprite[Area];}}}
+    public IEnumerator GoInside(){
+        InsideOn = !InsideOn;
+        NPC[0].sprite = (InsideOn) ? null : PartySprite[1];
+        Build[0].sprite = (InsideOn) ? ExitIcon : BuildSprite[0];
+        Build[0].transform.position = (InsideOn) ? new Vector3(Build[0].transform.position.x, 2, 0) : new Vector3(Build[0].transform.position.x, 0, 0);
+        foreach(SpriteRenderer i in Foreground){
+            i.sprite = (InsideOn) ? InsideSprite[0] : ForegroundSprite[Area];}
+        yield return new WaitForSeconds(0.5f);}
     public void CountSteps(){
         if(Area != 1){
             Steps += (Vector3.Distance(Position, Party[0].transform.position) < 1) ? Vector3.Distance(Position, Party[0].transform.position) : 0;

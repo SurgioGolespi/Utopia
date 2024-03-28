@@ -78,7 +78,7 @@ public class Battle : MonoBehaviour{
             P0Status, P1Status, P2Status};
         EStatus = new Image[][]{
             E0Status, E1Status, E2Status};}
-    IEnumerator EPGain(){
+    public IEnumerator EPGain(){
         for(int i = 0; i < 3; i++){
             PartyStats[MenuObj.PartyOrder[i]].EP += 100;
             if(PartyStats[MenuObj.PartyOrder[i]].EP == PartyStats[MenuObj.PartyOrder[i]].EN){
@@ -118,7 +118,7 @@ public class Battle : MonoBehaviour{
                 StartCoroutine(PartyAttack(ActionIndex));}
             else{
                 SkillOn = true;}}}
-    IEnumerator PartyAttack(int PartyTarget){
+    public IEnumerator PartyAttack(int PartyTarget){
         OverworldObj.Party[(AttackCount + 2) % 3].sprite = PAttackSprite[MenuObj.PartyOrder[(AttackCount + 2) % 3]];
         for(int i = 0; i < PartyStats[MenuObj.PartyOrder[(AttackCount + 2) % 3]].AC[Skill]; i++){
             Damage = PApplyStatus(PartyStats[MenuObj.PartyOrder[(AttackCount + 2)% 3]].AP, PartyTarget);
@@ -158,7 +158,7 @@ public class Battle : MonoBehaviour{
             PStatus[EnemyTarget][0].sprite = StatusIcon[0];
             PartyStatus[EnemyTarget, 0] += 1;}
         return Damage;}
-    IEnumerator EnemyAttack(){
+    public IEnumerator EnemyAttack(){
         for(int i = 0; i < 3; i++){
             if(EnemyHP[i] > 0){
                 OverworldObj.Enemy[i].sprite = EAttackSprite[EnemyOrder[i]];

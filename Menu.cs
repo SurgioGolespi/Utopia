@@ -35,7 +35,6 @@ public class Menu : MonoBehaviour{
     public Sprite[] BannerSprite;
     [Header("Dialogue Variables")]
     public string[] Dialogue;
-    public int DialogueIndex;
     [Header("Party Variables")]
     public bool StatsOn;
     public bool OrderOn;
@@ -43,7 +42,6 @@ public class Menu : MonoBehaviour{
     public int[] NewPartyOrder;
     public int OrderIndex;
     public int[] PartyOwned;
-    public bool InParty;
     [Header("Portal Variables")]
     public GameObject Map;
     public void Login(){
@@ -54,13 +52,7 @@ public class Menu : MonoBehaviour{
         if(MenuScreen.transform.gameObject.activeSelf){
                 MenuButtonText.text = "Menu";
                 MenuScreen.gameObject.SetActive(false);
-                DisableMenuObjects();
-                OrderIndex = 0;
-                for(int i = 0; i < 3; i++){
-                    NewPartyOrder[i] = -1;}
-                StatsOn = false;
-                OrderOn = false;
-                PullOn = false;}
+                ResetMenu();}
         else{
             MenuButtonText.text = "X";
             foreach(Transform i in App){
@@ -91,7 +83,7 @@ public class Menu : MonoBehaviour{
         Map.SetActive(true);}
     public void Prism(){}
     public void Prizes(){}
-    IEnumerator PullRun(){
+    public IEnumerator PullRun(){
         if(PullOn){
             PullScroll.gameObject.SetActive(false);
             MenuButton.gameObject.SetActive(false);
@@ -121,34 +113,23 @@ public class Menu : MonoBehaviour{
             BackButton.gameObject.SetActive(true);
             MenuButton.gameObject.SetActive(true);
             Pull();}}
-    public void DialogueRun(){
-        if(DialogueText.text == ""){
-            DialogueIndex = 0;
-            DialogueBox.gameObject.SetActive(true);
-            OverworldObj.MoveOn = false;
-            Dialogue = File.ReadAllLines(Path.Combine(Application.streamingAssetsPath, "Dialogue"));
-            DialogueText.text = Dialogue[DialogueIndex];}
-        else{
-            DialogueIndex++;
-            if(DialogueIndex < Dialogue.Length){
-                DialogueText.text = Dialogue[DialogueIndex];}
-            else{
-                DialogueText.text = "";
-                DialogueBox.gameObject.SetActive(false);
-                OverworldObj.MoveOn = true;}}}
+    public IEnumerator DialogueRun(){
+        DialogueBox.gameObject.SetActive(true);
+        OverworldObj.MoveOn = false;
+        Dialogue = File.ReadAllLines(Path.Combine(Application.streamingAssetsPath, "Dialogue"));
+        for(int i = 0; i < Dialogue.Length; i++){
+            DialogueText.text = Dialogue[i];
+            yield return new WaitForSeconds(0.5f);
+            yield return new WaitUntil(() => Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began);}
+        DialogueText.text = "";
+        DialogueBox.gameObject.SetActive(false);
+        OverworldObj.MoveOn = true;}
     public void MenuBack(){
-        AppText.text = "";
-        if(StatsOn || OrderOn){
-            OrderIndex = 0;
-            PartyScroll.gameObject.SetActive(true);
-            StatsOn = false;
-            OrderOn = false;
-            for(int i = 0; i < 3; i++){
-                NewPartyOrder[i] = -1;}}
-        else if(PullOn){
-            PullOn = false;}
+        if(StatsOn){
+            ResetMenu();
+            Party();}
         else if(!App[0].gameObject.activeSelf){
-            DisableMenuObjects();
+            ResetMenu();
             foreach(Transform i in App){
                 i.gameObject.SetActive(true);}}
         else{
@@ -156,29 +137,26 @@ public class Menu : MonoBehaviour{
     public void PartyRun(int PSCIndex){
         if(StatsOn){
             PartyScroll.gameObject.SetActive(false);
-            AppText.text = BattleObj.PartyStats[PartyOwned[PSCIndex]].ID + "\n" +
-            "LV: " + BattleObj.PartyStats[PartyOwned[PSCIndex]].LV + "\n" +
-            "EP Needed until next LV: " + BattleObj.PartyStats[PartyOwned[PSCIndex]].EP + "/" +  BattleObj.PartyStats[PartyOwned[PSCIndex]].EN + "\n" +
-            "HP: " + BattleObj.PartyStats[PartyOwned[PSCIndex]].HP + "\n" +
-            "AP: " + BattleObj.PartyStats[PartyOwned[PSCIndex]].AP;}
-        if(OrderOn && NewPartyOrder[0] != PSCIndex && NewPartyOrder[1] != PSCIndex){
+            AppText.text = string.Format("{0}\nLV: {1}\nEP Needed until next LV: {2}/{3}\nHP: {4}\nAP: {5}",
+            BattleObj.PartyStats[PartyOwned[PSCIndex]].ID, BattleObj.PartyStats[PartyOwned[PSCIndex]].LV, BattleObj.PartyStats[PartyOwned[PSCIndex]].EP, 
+            BattleObj.PartyStats[PartyOwned[PSCIndex]].EN, BattleObj.PartyStats[PartyOwned[PSCIndex]].HP, BattleObj.PartyStats[PartyOwned[PSCIndex]].AP);}
+        if(OrderOn && !NewPartyOrder.Any(n => n == PSCIndex)){
             NewPartyOrder[OrderIndex] = PartyOwned[PSCIndex];
             OrderIndex++;
             if(OrderIndex == 3){
+                PartyOrder = NewPartyOrder;
                 for(int i = 0; i < 3; i++){
-                    PartyOrder[i] = NewPartyOrder[i];
                     OverworldObj.Party[i].sprite = OverworldObj.PartySprite[NewPartyOrder[i]];}
                 OrderIndex = 0;
-                MenuBack();}}}
-    public void StatsRun(){
-        if(!OrderOn && !StatsOn){
-            StatsOn = true;}}
-    public void OrderRun(){
-        if(!StatsOn && !OrderOn){
-            OrderOn = true;}}
+                OrderOn = false;}}}
+    public void SetParty(int PMIndex){
+        if(!OrderOn && PMIndex == 0){
+            StatsOn = !StatsOn;}
+        if(!StatsOn && PMIndex == 1){
+            OrderOn = !OrderOn;}}
     public void SetPull(int PAIndex){
             PullAmount = PAIndex;
-            PullOn = true;}
+            PullOn = !PullOn;}
     public void StartPull(){
         StartCoroutine(PullRun());}
     public void AddParty(int APIndex){
@@ -186,8 +164,7 @@ public class Menu : MonoBehaviour{
             Array.Resize(ref PartyOwned, PartyOwned.Length + 1);
             PartyOwned[PartyOwned.Length - 1] = APIndex;}
         else{
-            Apples += 10;}
-        InParty = false;}
+            Apples += 10;}}
     public void PortalRun(int NewArea){
         OverworldObj.Party[0].transform.position =  new Vector3(0,0,0);
         if(OverworldObj.Area == (NewArea + 2) % 3){
@@ -195,7 +172,13 @@ public class Menu : MonoBehaviour{
         else if(OverworldObj.Area == (NewArea + 1) % 3){
             OverworldObj.AreaChange(-1);}
         MenuOn();}
-    public void DisableMenuObjects(){
+    public void ResetMenu(){
+        OrderIndex = 0;
+        for(int i = 0; i < 3; i++){
+            NewPartyOrder[i] = -1;}
+        StatsOn = false;
+        OrderOn = false;
+        PullOn = false;
         AppText.text = "";
         Map.SetActive(false);
         PartyScroll.gameObject.SetActive(false);
